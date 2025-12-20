@@ -104,11 +104,27 @@ return [
      | Color Theme
      |--------------------------------------------------------------------------
      |
-     | CSS variables for light and dark mode theming.
-     | These match the preview image styling.
+     | Theme colors for Wirechat. By default, these will use Filament's panel
+     | colors. You can override them here if needed.
+     |
+     | Set to null to use Filament's theme colors automatically.
      |
      */
-    'color' => env('WIRECHAT_COLOR', '#3b82f6'),
+    'theme' => [
+        'brand_primary' => env('WIRECHAT_THEME_BRAND_PRIMARY', null), // null = use Filament primary color
+        
+        // Light mode colors (null = use Filament defaults)
+        'light_primary' => env('WIRECHAT_THEME_LIGHT_PRIMARY', null), // null = white
+        'light_secondary' => env('WIRECHAT_THEME_LIGHT_SECONDARY', null), // null = gray-100
+        'light_accent' => env('WIRECHAT_THEME_LIGHT_ACCENT', null), // null = gray-200
+        'light_border' => env('WIRECHAT_THEME_LIGHT_BORDER', null), // null = gray-200
+        
+        // Dark mode colors (null = use Filament defaults)
+        'dark_primary' => env('WIRECHAT_THEME_DARK_PRIMARY', null), // null = gray-950
+        'dark_secondary' => env('WIRECHAT_THEME_DARK_SECONDARY', null), // null = gray-900
+        'dark_accent' => env('WIRECHAT_THEME_DARK_ACCENT', null), // null = gray-800
+        'dark_border' => env('WIRECHAT_THEME_DARK_BORDER', null), // null = gray-800
+    ],
 
     /*
      |--------------------------------------------------------------------------

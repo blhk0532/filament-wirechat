@@ -3,11 +3,15 @@
 namespace AdultDate\FilamentWirechat;
 
 use AdultDate\FilamentWirechat\Commands\InstallWirechatCommand;
+use Filament\Facades\Filament;
+use Filament\Panel;
 use Filament\Support\Assets\Asset;
 use Filament\Support\Assets\Css;
 use Filament\Support\Assets\Js;
+use Filament\Support\Colors\Color;
 use Filament\Support\Facades\FilamentAsset;
 use Filament\Support\Facades\FilamentIcon;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Filesystem\Filesystem;
 use Livewire\Features\SupportTesting\Testable;
@@ -73,6 +77,9 @@ class FilamentWirechatServiceProvider extends PackageServiceProvider
 
         // Load broadcasting channels
         $this->loadBroadcastingChannels();
+
+        // Register Blade directive for theme CSS variables
+        $this->registerThemeStyles();
 
         // Testing
         Testable::mixin(new Testing\TestsFilamentWirechat);
@@ -159,5 +166,16 @@ class FilamentWirechatServiceProvider extends PackageServiceProvider
             'create_wirechat_actions_table',
             'create_wirechat_groups_table',
         ];
+    }
+
+    /**
+     * Register Blade directive for injecting theme CSS variables.
+     * Uses Filament's panel colors by default, with config overrides.
+     */
+    protected function registerThemeStyles(): void
+    {
+        Blade::directive('filamentWirechatStyles', function () {
+            return "<?php echo app('AdultDate\FilamentWirechat\Services\ThemeService')->renderStyles(); ?>";
+        });
     }
 }

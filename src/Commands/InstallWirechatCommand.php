@@ -32,6 +32,15 @@ class InstallWirechatCommand extends Command
         $this->publishMigrations();
         $this->info('✓ Migrations published');
 
+        // Run migrations
+        $this->info('🗄️  Running migrations...');
+        if ($this->confirm('Run migrations now?', true)) {
+            $this->call('migrate');
+            $this->info('✓ Migrations run successfully');
+        } else {
+            $this->warn('⚠️  Migrations not run. Run manually with: php artisan migrate');
+        }
+
         // Setup broadcasting
         $this->info('📡 Setting up broadcasting...');
         $this->setupBroadcasting();
@@ -56,8 +65,7 @@ class InstallWirechatCommand extends Command
         $this->info('✅ Filament Wirechat installed successfully!');
         $this->newLine();
         $this->comment('Next steps:');
-        $this->comment('1. Run migrations: php artisan migrate');
-        $this->comment('2. Start queue worker: php artisan queue:work');
+        $this->comment('1. Start queue worker: php artisan queue:work');
         $this->comment('3. Configure broadcasting driver in .env:');
         $this->comment('   - BROADCAST_CONNECTION=pusher (requires Pusher account)');
         $this->comment('   - BROADCAST_CONNECTION=reverb (Laravel Reverb - recommended, free)');
