@@ -1,95 +1,77 @@
-# :package_description
+# Filament Wirechat Plugin
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/:vendor_slug/:package_slug.svg?style=flat-square)](https://packagist.org/packages/:vendor_slug/:package_slug)
-[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/:vendor_slug/:package_slug/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/:vendor_slug/:package_slug/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/:vendor_slug/:package_slug/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/:vendor_slug/:package_slug/actions?query=workflow%3A"Fix+PHP+code+styling"+branch%3Amain)
-[![Total Downloads](https://img.shields.io/packagist/dt/:vendor_slug/:package_slug.svg?style=flat-square)](https://packagist.org/packages/:vendor_slug/:package_slug)
-
-<!--delete-->
----
-This repo can be used to scaffold a Filament plugin. Follow these steps to get started:
-
-1. Press the "Use this template" button at the top of this repo to create a new repo with the contents of this skeleton.
-2. Run "php ./configure.php" to run a script that will replace all placeholders throughout all the files.
-3. Make something great!
----
-<!--/delete-->
-
-This is where your description should go. Limit it to a paragraph or two. Consider adding a small example.
+A complete Filament v4 plugin for Wirechat - real-time messaging with private chats and group conversations.
 
 ## Installation
 
-You can install the package via composer:
+```bash
+composer require adultdate/filament-wirechat
+```
+
+Then run the installation command:
 
 ```bash
-composer require :vendor_slug/:package_slug
+php artisan wirechat:install
 ```
 
-> [!IMPORTANT]
-> If you have not set up a custom theme and are using Filament Panels follow the instructions in the [Filament Docs](https://filamentphp.com/docs/4.x/styling/overview#creating-a-custom-theme) first.
+This will:
+- Publish configuration files
+- Publish and run migrations
+- Set up broadcasting (WebSockets)
+- Configure queue
+- Set up Tailwind CSS
+- Register the plugin with your Filament panel
 
-After setting up a custom theme add the plugin's views to your theme css file or your app's css file if using the standalone packages.
+## Configuration
 
-```css
-@source '../../../../vendor/:vendor_slug/:package_slug/resources/**/*.blade.php';
-```
-
-You can publish and run the migrations with:
-
-```bash
-php artisan vendor:publish --tag=":package_slug-migrations"
-php artisan migrate
-```
-
-You can publish the config file with:
-
-```bash
-php artisan vendor:publish --tag=":package_slug-config"
-```
-
-Optionally, you can publish the views using
-
-```bash
-php artisan vendor:publish --tag=":package_slug-views"
-```
-
-This is the contents of the published config file:
+After installation, add the plugin to your Filament panel:
 
 ```php
-return [
-];
+use AdultDate\FilamentWirechat\FilamentWirechatPlugin;
+
+public function panel(Panel $panel): Panel
+{
+    return $panel
+        ->plugins([
+            FilamentWirechatPlugin::make(),
+        ]);
+}
 ```
 
-## Usage
+## Features
 
-```php
-$variable = new VendorName\Skeleton();
-echo $variable->echoPhrase('Hello, VendorName!');
-```
+- ✅ Private & Group Chats
+- ✅ Real-time messaging
+- ✅ Media sharing
+- ✅ Message search
+- ✅ Dark mode support
+- ✅ Customizable themes
 
-## Testing
+## Status
 
-```bash
-composer test
-```
+This plugin is currently in development. The following components have been ported:
 
-## Changelog
+### ✅ Completed
+- Plugin structure and service provider
+- Install command with full setup (WebSockets, Queue, Tailwind)
+- Configuration file
+- Migrations (updated for new namespace)
+- Enums (ConversationType, ParticipantRole, MessageType, GroupType, Actions)
+- Basic service and facade structure
 
-Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
+### 🚧 In Progress / TODO
+- Models (Conversation, Message, Participant, Group, Attachment, Action)
+- Livewire components (Chat, Chats, Modals, etc.)
+- Events and Jobs
+- Notifications
+- Views and styling
+- Broadcasting channels
+- Routes
 
 ## Contributing
 
-Please see [CONTRIBUTING](.github/CONTRIBUTING.md) for details.
-
-## Security Vulnerabilities
-
-Please review [our security policy](.github/SECURITY.md) on how to report security vulnerabilities.
-
-## Credits
-
-- [:author_name](https://github.com/:author_username)
-- [All Contributors](../../contributors)
+Contributions are welcome! Please see the contributing guidelines.
 
 ## License
 
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+MIT

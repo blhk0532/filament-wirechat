@@ -1,22 +1,26 @@
 {
-    "name": ":vendor_slug/:package_slug",
-    "description": ":package_description",
+    "name": "adultdate/filament-wirechat",
+    "description": "A complete Filament v4 plugin for Wirechat - real-time messaging with private chats and group conversations",
     "keywords": [
-        ":vendor_name",
+        "adultdate",
         "laravel",
         "filamentphp",
-        ":package_slug"
+        "filament-wirechat",
+        "wirechat",
+        "chat",
+        "messaging",
+        "livewire"
     ],
-    "homepage": "https://github.com/:vendor_slug/:package_slug",
+    "homepage": "https://github.com/adultdate/filament-wirechat",
     "support": {
-        "issues": "https://github.com/:vendor_slug/:package_slug/issues",
-        "source": "https://github.com/:vendor_slug/:package_slug"
+        "issues": "https://github.com/adultdate/filament-wirechat/issues",
+        "source": "https://github.com/adultdate/filament-wirechat"
     },
     "license": "MIT",
     "authors": [
         {
-            "name": ":author_name",
-            "email": "author@domain.com",
+            "name": "AdultDate",
+            "email": "dev@adultdate.com",
             "role": "Developer"
         }
     ],
@@ -25,6 +29,7 @@
         "filament/filament": "^4.0",
         "filament/forms": "^4.0",
         "filament/tables": "^4.0",
+        "livewire/livewire": "^3.0",
         "spatie/laravel-package-tools": "^1.15.0"
     },
     "require-dev": {
@@ -44,13 +49,16 @@
     },
     "autoload": {
         "psr-4": {
-            "VendorName\\Skeleton\\": "src/",
-            "VendorName\\Skeleton\\Database\\Factories\\": "database/factories/"
-        }
+            "AdultDate\\FilamentWirechat\\": "src/",
+            "AdultDate\\FilamentWirechat\\Database\\Factories\\": "database/factories/"
+        },
+        "files": [
+            "src/Support/helpers.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
-            "VendorName\\Skeleton\\Tests\\": "tests/"
+            "AdultDate\\FilamentWirechat\\Tests\\": "tests/"
         }
     },
     "scripts": {
@@ -65,10 +73,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "VendorName\\Skeleton\\SkeletonServiceProvider"
+                "AdultDate\\FilamentWirechat\\FilamentWirechatServiceProvider"
             ],
             "aliases": {
-                "Skeleton": "VendorName\\Skeleton\\Facades\\Skeleton"
+                "Wirechat": "AdultDate\\FilamentWirechat\\Facades\\Wirechat"
             }
         }
     },
