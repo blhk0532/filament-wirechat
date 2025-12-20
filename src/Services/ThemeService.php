@@ -9,7 +9,8 @@ class ThemeService
 {
     /**
      * Render the theme CSS variables as a style tag.
-     * Uses Filament's panel colors by default, with config overrides.
+     * Uses exact OKLCH values from original wirechat to match preview image.
+     * Allows Filament panel colors and config overrides.
      */
     public function renderStyles(): string
     {
@@ -22,21 +23,18 @@ class ThemeService
         // Get primary color from Filament panel or config
         $brandPrimary = $this->getBrandPrimary($panelColors, $config);
         
-        // Get Filament's default gray colors for backgrounds
-        $filamentGray = Color::Gray;
+        // Use exact OKLCH values from original wirechat implementation to match preview
+        // These match the original wirechat documentation and preview image
+        $lightPrimary = $config['light_primary'] ?? '#fff'; // white
+        $lightSecondary = $config['light_secondary'] ?? 'oklch(0.967 0.001 286.375)'; // zinc-100
+        $lightAccent = $config['light_accent'] ?? 'oklch(0.985 0 0)'; // zinc-50
+        $lightBorder = $config['light_border'] ?? 'oklch(0.92 0.004 286.32)'; // zinc-200
         
-        // Get light mode colors - use config or Filament defaults
-        // Light primary should be white, not gray
-        $lightPrimary = $config['light_primary'] ?? '#ffffff'; // white
-        $lightSecondary = $config['light_secondary'] ?? $filamentGray[100]; // gray-100
-        $lightAccent = $config['light_accent'] ?? $filamentGray[200]; // gray-200
-        $lightBorder = $config['light_border'] ?? $filamentGray[200]; // gray-200
-        
-        // Get dark mode colors - use config or Filament defaults
-        $darkPrimary = $config['dark_primary'] ?? $filamentGray[950]; // gray-950
-        $darkSecondary = $config['dark_secondary'] ?? $filamentGray[900]; // gray-900
-        $darkAccent = $config['dark_accent'] ?? $filamentGray[800]; // gray-800
-        $darkBorder = $config['dark_border'] ?? $filamentGray[700]; // gray-700
+        // Dark mode - exact values from original wirechat (zinc palette)
+        $darkPrimary = $config['dark_primary'] ?? 'oklch(0.21 0.006 285.885)'; // zinc-900
+        $darkSecondary = $config['dark_secondary'] ?? 'oklch(0.274 0.006 286.033)'; // zinc-800
+        $darkAccent = $config['dark_accent'] ?? 'oklch(0.37 0.013 285.805)'; // zinc-700
+        $darkBorder = $config['dark_border'] ?? 'oklch(0.37 0.013 285.805)'; // zinc-700
         
         // Build CSS variables
         $css = ":root {\n";
@@ -91,8 +89,8 @@ class ThemeService
             }
         }
         
-        // Default fallback to Blue-500
-        return Color::Blue[500];
+        // Default fallback to Blue-500 (OKLCH format matching original wirechat)
+        return 'oklch(0.623 0.214 259.815)'; // Blue-500 from original wirechat
     }
     
 }

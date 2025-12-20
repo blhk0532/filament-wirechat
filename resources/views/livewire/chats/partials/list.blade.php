@@ -1,5 +1,13 @@
 @use('AdultDate\FilamentWirechat\Facades\Wirechat')
 
+@php
+    // Debug: Log widget status
+    \Log::debug('Chats list rendering', [
+        'widget' => $widget ?? 'not set',
+        'conversations_count' => count($conversations ?? [])
+    ]);
+@endphp
+
 <ul wire:loading.delay.long.remove wire:target="search" class="p-2 grid w-full space-y-2">
     @foreach ($conversations as $key=> $conversation)
     @php
@@ -43,13 +51,44 @@
         wire:key="conversation-em-{{ $conversation->id }}-{{ $conversation->updated_at->timestamp }}"
         x-on:chat-opened.window="handleChatOpened($event)"
         x-on:chat-closed.window="handleChatClosed($event)">
-        <a @if ($widget) tabindex="0"
+        <a @if ($widget === true || $widget === 'true' || $widget === 1) tabindex="0"
         role="button"
         dusk="openChatWidgetButton"
-        @click="$dispatch('open-chat',{conversation:@js($conversation->id)})"
-        @keydown.enter="$dispatch('open-chat',{conversation:@js($conversation->id)})"
+        @click="
+            console.log('[CHAT CLICK] Widget mode: Opening chat widget', { conversation: @js($conversation->id), widget: @js($widget) });
+            $dispatch('open-chat',{conversation:@js($conversation->id)});
+        "
+        @keydown.enter="
+            console.log('[CHAT CLICK] Widget mode: Opening chat widget (keyboard)', { conversation: @js($conversation->id) });
+            $dispatch('open-chat',{conversation:@js($conversation->id)});
+        "
         @else
-        wire:navigate href="{{ $this->chatRoute($conversation)}}" @endif
+        href="{{ $this->chatRoute($conversation, true) }}"
+        @click.prevent="
+            console.log('[CHAT CLICK] ========== CLICK DETECTED ==========');
+            console.log('[CHAT CLICK] Non-widget mode: Click detected', {
+                conversationId: @js($conversation->id),
+                href: '{{ $this->chatRoute($conversation, true) }}',
+                widget: @js($widget),
+                widgetType: typeof @js($widget),
+                widgetValue: @js($widget),
+                eventType: $event.type
+            });
+            console.log('[CHAT CLICK] Attempting to close modal...');
+            try {
+                $dispatch('close-modal', { id: 'chats-sidebar' });
+                console.log('[CHAT CLICK] Close-modal event dispatched successfully');
+            } catch (e) {
+                console.error('[CHAT CLICK] Error dispatching close-modal:', e);
+            }
+            console.log('[CHAT CLICK] Navigating to:', '{{ $this->chatRoute($conversation, true) }}');
+            // Use setTimeout to ensure modal closes before navigation
+            setTimeout(() => {
+                window.location.href = '{{ $this->chatRoute($conversation, true) }}';
+            }, 100);
+            console.log('[CHAT CLICK] ===========================================');
+        "
+        onclick="console.log('[CHAT CLICK] Native onclick fired, widget:', @js($widget));" @endif
             @style(['border-color:var(--wc-brand-primary)' => $selectedConversationId == $conversation?->id])
             class="py-3 flex gap-4  dark:hover:bg-[var(--wc-dark-secondary)]  hover:bg-[var(--wc-light-secondary)]  rounded-xs transition-colors duration-150  relative w-full cursor-pointer px-2"
             :class="$wire.selectedConversationId == conversationID &&

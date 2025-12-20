@@ -53,6 +53,11 @@ class Chats extends Component
     public ?string $heading = '';
 
     /**
+     * Hide the header in sidebar/modal context.
+     */
+    public bool $hideHeader = false;
+
+    /**
      * Indicates if more conversations can be loaded.
      */
     public bool $canLoadMore = false;

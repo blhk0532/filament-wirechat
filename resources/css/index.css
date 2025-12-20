@@ -1,1 +1,6 @@
 @import '../../vendor/filament/filament/resources/css/theme.css';
+
+
+.fi-page-header-main-ctn{
+    display: none !important;
+}

@@ -1,7 +1,9 @@
 <x-filament-panels::page>
-    <div class="w-full h-[calc(100vh-8rem)] flex rounded-lg overflow-hidden">
+    {{-- Always show header on chats page - adjust height to account for Filament page header and header height --}}
+    <div class="w-full h-[calc(100vh-4rem)] flex rounded-lg overflow-hidden">
         <div class="relative h-full border-r border-[var(--wc-light-border)] dark:border-[var(--wc-dark-border)] w-full md:w-[280px] lg:w-[300px] shrink-0 overflow-hidden flex flex-col">
-            <livewire:filament-wirechat.chats />
+            {{-- Pass hideHeader=false to always show the header --}}
+            <livewire:filament-wirechat.chats :hideHeader="false" />
         </div>
         <main class="hidden md:flex h-full flex-1 bg-[var(--wc-light-primary)] dark:bg-[var(--wc-dark-primary)] relative overflow-hidden flex-col" style="contain:content">
             <div class="m-auto text-center justify-center flex gap-3 flex-col items-center">
@@ -14,4 +16,14 @@
     
     {{-- Include modal component for new chat and other modals --}}
     <livewire:filament-wirechat.modal />
+    <style>
+.fi-page-main{max-height: calc(100vh - 4rem) !important;}
+.fi-page-header-main-ctn{max-height: calc(100vh - 4rem) !important;padding: 0px !important;margin: 0px !important;}
+.fi-page{max-height: calc(100vh - 4rem) !important;}
+.fi-page-content{max-height: calc(100vh - 4rem) !important;}
+.fi-main.fi-width-7xl{max-height: calc(100vh - 4rem) !important;}
+.fi-main.fi-width-7xl{padding: 0px !important;margin: 0px !important;width:100% !important;min-width:100% !important;}
+.fi-main.fi-width-7xl{max-height: calc(100vh - 4rem) !important;}
+.fi-main.fi-width-7xl{max-height: calc(100vh - 4rem) !important;}
+    </style>
 </x-filament-panels::page>

@@ -291,4 +291,10 @@
     .wc-scrollbar-hide::-webkit-scrollbar {
         display: none; /* WebKit */
     }
+
+
+
+    .fi-page-header-main-ctn{
+        display: none !important;
+    }
 }

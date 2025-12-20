@@ -51,11 +51,11 @@
 
 
 
-     class="flex flex-col bg-[var(--wc-light-primary)]  dark:bg-[var(--wc-dark-primary)]  transition-all h-full overflow-hidden w-full sm:p-3">
+     class="flex flex-col bg-[var(--wc-light-primary)]  dark:bg-[var(--wc-dark-primary)]  transition-all h-full overflow-hidden w-full chats-container" :class="$wire.hideHeader ? '' : 'sm:p-3'">
 
     @php
-        /* Show header if any of these conditions are true  */
-        $showHeader = $createChatAction || $chatsSearch || $redirectToHomeAction || !empty($heading);
+        /* Show header if any of these conditions are true AND hideHeader is false  */
+        $showHeader = !$hideHeader && ($createChatAction || $chatsSearch || $redirectToHomeAction || !empty($heading));
     @endphp
 
     {{-- include header --}}
@@ -77,7 +77,7 @@
             }
             "
           id="wirechat-chats-scrollable-container"
-        class=" overflow-y-auto py-2  wc-scrollbar-theme  grow  h-full relative " style="contain:content">
+        class="overflow-y-auto py-2 wc-scrollbar-theme grow relative chats-scrollable-container">
 
         {{-- loading indicator --}}
 

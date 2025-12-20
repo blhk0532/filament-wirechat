@@ -777,6 +777,20 @@ class Chat extends Component
         $this->loadMessages();
     }
 
+    /**
+     * Handle when conversation prop is updated (e.g., via wire:navigate in SPA mode).
+     */
+    public function updatedConversation($value): void
+    {
+        // Reinitialize when conversation changes
+        if ($value) {
+            $this->initializeConversation($value);
+            $this->initializeParticipants();
+            $this->finalizeConversationState();
+            $this->loadMessages();
+        }
+    }
+
     private function initializeConversation($conversation)
     {
         abort_unless(auth()->check(), 401);

@@ -2,8 +2,8 @@
 
 namespace AdultDate\FilamentWirechat\Filament\Pages;
 
-use Filament\Pages\Page;
 use AdultDate\FilamentWirechat\Livewire\Chats\Chats as ChatsComponent;
+use Filament\Pages\Page;
 
 class ChatsPage extends Page
 {
@@ -15,9 +15,14 @@ class ChatsPage extends Page
 
     protected static ?int $navigationSort = 1;
 
-    protected static ?string $title = 'Chats';
+    protected static ?string $title = '  ';
 
     protected static bool $shouldRegisterNavigation = true;
+
+    public function getHeading(): string
+    {
+        return ' ';
+    }
 
     protected static bool $fullWidth = true;
 

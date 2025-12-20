@@ -14,64 +14,64 @@ class InstallWirechatCommand extends Command
 
     public function handle(): int
     {
-        $this->info('🚀 Installing Filament Wirechat Plugin...');
+        $this->info('Installing Filament Wirechat Plugin...');
         $this->newLine();
 
         // Publish configuration
-        $this->info('📝 Publishing configuration...');
+        $this->info('Publishing configuration...');
         $this->publishConfiguration();
-        $this->info('✓ Configuration published');
+        $this->info('Configuration published');
 
         // Create storage symlink
-        $this->info('🔗 Creating storage symlink...');
+        $this->info('Creating storage symlink...');
         Artisan::call('storage:link');
-        $this->info('✓ Storage linked');
+        $this->info('Storage linked');
 
         // Publish migrations
-        $this->info('📦 Publishing migrations...');
+        $this->info('Publishing migrations...');
         $this->publishMigrations();
-        $this->info('✓ Migrations published');
+        $this->info('Migrations published');
 
         // Run migrations
-        $this->info('🗄️  Running migrations...');
+        $this->info('Running migrations...');
         if ($this->confirm('Run migrations now?', true)) {
             $this->call('migrate');
-            $this->info('✓ Migrations run successfully');
+            $this->info('Migrations run successfully');
         } else {
-            $this->warn('⚠️  Migrations not run. Run manually with: php artisan migrate');
+            $this->warn('Migrations not run. Run manually with: php artisan migrate');
         }
 
         // Setup broadcasting
-        $this->info('📡 Setting up broadcasting...');
+        $this->info('Setting up broadcasting...');
         $this->setupBroadcasting();
-        $this->info('✓ Broadcasting configured');
+        $this->info('Broadcasting configured');
 
         // Setup queue
-        $this->info('⚙️  Setting up queue...');
+        $this->info('Setting up queue...');
         $this->setupQueue();
-        $this->info('✓ Queue configured');
+        $this->info('Queue configured');
 
         // Setup Tailwind CSS
-        $this->info('🎨 Setting up Tailwind CSS...');
+        $this->info('Setting up Tailwind CSS...');
         $this->setupTailwind();
-        $this->info('✓ Tailwind CSS configured');
+        $this->info('Tailwind CSS configured');
 
         // Register plugin with Filament panel
-        $this->info('🔌 Registering plugin with Filament panel...');
+        $this->info('Registering plugin with Filament panel...');
         $this->registerPlugin();
-        $this->info('✓ Plugin registered');
+        $this->info('Plugin registered');
 
         $this->newLine();
-        $this->info('✅ Filament Wirechat installed successfully!');
+        $this->info('Filament Wirechat installed successfully!');
         $this->newLine();
         $this->comment('Next steps:');
         $this->comment('1. Start queue worker: php artisan queue:work');
-        $this->comment('3. Configure broadcasting driver in .env:');
+        $this->comment('2. Configure broadcasting driver in .env:');
         $this->comment('   - BROADCAST_CONNECTION=pusher (requires Pusher account)');
         $this->comment('   - BROADCAST_CONNECTION=reverb (Laravel Reverb - recommended, free)');
         $this->comment('   - BROADCAST_CONNECTION=redis (requires Redis + Socket.IO server)');
         $this->comment('   - BROADCAST_CONNECTION=ably (requires Ably account)');
-        $this->comment('4. Visit your Filament panel to start using Wirechat!');
+        $this->comment('3. Visit your Filament panel to start using Wirechat!');
 
         return self::SUCCESS;
     }
@@ -97,7 +97,7 @@ class InstallWirechatCommand extends Command
         $envPath = base_path('.env');
         
         if (!File::exists($envPath)) {
-            $this->warn('⚠️  .env file not found. Please configure broadcasting manually.');
+            $this->warn('.env file not found. Please configure broadcasting manually.');
             return;
         }
 
@@ -116,7 +116,7 @@ class InstallWirechatCommand extends Command
             $envContent .= "\nPUSHER_APP_ID=\nPUSHER_APP_KEY=\nPUSHER_APP_SECRET=\nPUSHER_APP_CLUSTER=mt1\n";
             File::put($envPath, $envContent);
             $this->line('  → Added PUSHER configuration placeholders to .env');
-            $this->warn('  ⚠️  Please configure your Pusher credentials in .env');
+            $this->warn('  Please configure your Pusher credentials in .env');
         }
 
         // Ensure broadcasting service provider is registered
@@ -128,7 +128,7 @@ class InstallWirechatCommand extends Command
         $envPath = base_path('.env');
         
         if (!File::exists($envPath)) {
-            $this->warn('⚠️  .env file not found. Please configure queue manually.');
+            $this->warn('.env file not found. Please configure queue manually.');
             return;
         }
 
@@ -147,7 +147,7 @@ class InstallWirechatCommand extends Command
         $cssPath = resource_path('css/app.css');
         
         if (!File::exists($cssPath)) {
-            $this->warn('⚠️  app.css not found. Please add @source directive manually.');
+            $this->warn('app.css not found. Please add @source directive manually.');
             return;
         }
 

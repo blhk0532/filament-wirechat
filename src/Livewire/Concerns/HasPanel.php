@@ -81,7 +81,17 @@ trait HasPanel
             return route('filament.admin.pages.chats-page', [], $absolute);
         }
         
-        return route("filament.{$panel->getId()}.pages.chats-page", [], $absolute);
+        $panelId = $panel->getId();
+        
+        // Use the correct page class based on the panel
+        // For wirechat panel, use WirechatChatsPage, otherwise use ChatsPage
+        if ($panelId === 'wirechat') {
+            $pageClass = \App\Filament\Wirechat\Pages\WirechatChatsPage::class;
+        } else {
+            $pageClass = \AdultDate\FilamentWirechat\Filament\Pages\ChatsPage::class;
+        }
+        
+        return $pageClass::getUrl(panel: $panelId);
     }
 
     /**
@@ -105,8 +115,26 @@ trait HasPanel
             $conversationId = $conversation;
         }
         
+        // Use the correct page class based on the panel
+        // For wirechat panel, use WirechatChatPage, otherwise use ChatPage
+        if ($panelId === 'wirechat') {
+            $pageClass = \App\Filament\Wirechat\Pages\WirechatChatPage::class;
+        } else {
+            $pageClass = ChatPage::class;
+        }
+        
+        // For route model binding, pass the conversation object if available, otherwise use ID
+        $conversationParam = is_object($conversation) ? $conversation : $conversationId;
+        
         // Use Filament's Page class to generate the URL with parameters
-        return ChatPage::getUrl(['conversation' => $conversationId], panel: $panelId);
+        $url = $pageClass::getUrl(['conversation' => $conversationParam], panel: $panelId);
+        
+        // Make absolute if requested
+        if ($absolute && !str_starts_with($url, 'http')) {
+            return url($url);
+        }
+        
+        return $url;
     }
 
     /**
