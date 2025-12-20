@@ -1,4 +1,4 @@
-<div id="info-modal" class="bg-[var(--wc-light-primary)] dark:bg-[var(--wc-dark-primary)] dark:text-white min-h-screen">
+<div id="info-modal" class="bg-[var(--wc-light-primary)] dark:bg-[var(--wc-dark-primary)] dark:text-white h-full flex flex-col">
 
 
     <section class="flex gap-4 z-10  items-center p-5 sticky top-0 bg-[var(--wc-light-primary)] dark:bg-[var(--wc-dark-primary)] dark:text-white border-b border-[var(--wc-light-border)] dark:border-[var(--wc-dark-border)]">

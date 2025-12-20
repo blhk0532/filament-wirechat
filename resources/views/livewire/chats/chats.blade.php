@@ -51,7 +51,7 @@
 
 
 
-     class="flex flex-col bg-[var(--wc-light-primary)]  dark:bg-[var(--wc-dark-primary)]  transition-all h-full overflow-hidden w-full chats-container" :class="$wire.hideHeader ? '' : 'sm:p-3'">
+     class="flex flex-col bg-[var(--wc-light-primary)] dark:bg-[var(--wc-dark-primary)] h-full overflow-hidden w-full chats-container{{ !$hideHeader ? ' sm:p-3' : '' }}">
 
     @php
         /* Show header if any of these conditions are true AND hideHeader is false  */

@@ -1,4 +1,4 @@
-<div id="group-info-modal" class="bg-[var(--wc-light-primary)] dark:bg-[var(--wc-dark-primary)] dark:text-white min-h-screen">
+<div id="group-info-modal" class="bg-[var(--wc-light-primary)] dark:bg-[var(--wc-dark-primary)] dark:text-white h-full flex flex-col">
 
 
     @php
