@@ -19,7 +19,7 @@ class Helper
     {
         $fileExtensions = config('filament-wirechat.attachments.media_mimes');
 
-        return '.'.implode(',.', $fileExtensions);
+        return '.' . implode(',.', $fileExtensions);
     }
 
     /**
@@ -35,7 +35,7 @@ class Helper
     {
         $fileExtensions = config('filament-wirechat.attachments.file_mimes');
 
-        return '.'.implode(',.', $fileExtensions);
+        return '.' . implode(',.', $fileExtensions);
     }
 
     /**

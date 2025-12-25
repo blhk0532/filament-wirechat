@@ -44,7 +44,7 @@ class Wirechat extends Component
         // $componentClass = app(ComponentRegistry::class)->getClass($component);
 
         // Generate a unique ID using the conversationId and arguments
-        $id = md5($component.$conversation.serialize($arguments));
+        $id = md5($component . $conversation . serialize($arguments));
 
         // Merge modal attributes with defaults
         $defaultModalAttributes = [

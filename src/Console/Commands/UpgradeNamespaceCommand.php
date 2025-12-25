@@ -30,7 +30,7 @@ class UpgradeNamespaceCommand extends Command
         }
 
         exec($findCommand, $files);
-        $files = array_map(fn ($file) => str_replace($basePath.DIRECTORY_SEPARATOR, '', $file), $files);
+        $files = array_map(fn ($file) => str_replace($basePath . DIRECTORY_SEPARATOR, '', $file), $files);
 
         if ($this->option('dry-run')) {
             if (empty($files)) {

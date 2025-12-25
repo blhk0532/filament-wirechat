@@ -23,7 +23,8 @@ use Livewire\Component;
  */
 class Chats extends Component
 {
-    use HasPanel,Widget;
+    use HasPanel;
+    use Widget;
 
     /**
      * The search query.
@@ -301,7 +302,7 @@ class Chats extends Component
                         $table = $query3->getModel()->getTable();
                         foreach ($searchableFields as $field) {
                             if ($this->columnExists($table, $field, $columnCache)) {
-                                $query3->orWhere($field, 'LIKE', '%'.$this->search.'%');
+                                $query3->orWhere($field, 'LIKE', '%' . $this->search . '%');
                             }
                         }
                     });
@@ -312,7 +313,7 @@ class Chats extends Component
             return $query->orWhereHas('group', function ($groupQuery) use ($groupSearchableFields) {
                 $groupQuery->where(function ($query4) use ($groupSearchableFields) {
                     foreach ($groupSearchableFields as $field) {
-                        $query4->orWhere($field, 'LIKE', '%'.$this->search.'%');
+                        $query4->orWhere($field, 'LIKE', '%' . $this->search . '%');
                     }
                 });
             });
@@ -437,7 +438,7 @@ class Chats extends Component
             }
 
             // If Filament panel check failed but we're on admin route, use admin path
-            $path = '/admin/chats/'.$conversationId;
+            $path = '/admin/chats/' . $conversationId;
 
             return $absolute ? url($path) : $path;
         }
@@ -446,7 +447,7 @@ class Chats extends Component
         if ($this->isWidget() === true) {
             // Widget mode doesn't use routes, but we still need to return something
             // This shouldn't be called in widget mode, but just in case
-            $path = '/admin/chats/'.$conversationId;
+            $path = '/admin/chats/' . $conversationId;
 
             return $absolute ? url($path) : $path;
         }
@@ -457,7 +458,7 @@ class Chats extends Component
         }
 
         // Ultimate fallback
-        $path = '/admin/chats/'.$conversationId;
+        $path = '/admin/chats/' . $conversationId;
 
         return $absolute ? url($path) : $path;
     }

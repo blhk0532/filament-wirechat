@@ -6,9 +6,9 @@ use Closure;
 
 trait HasDeleteMessageActions
 {
-    protected bool|Closure $deleteMessageActions = true;
+    protected bool | Closure $deleteMessageActions = true;
 
-    public function deleteMessageActions(bool|Closure $condition = true): static
+    public function deleteMessageActions(bool | Closure $condition = true): static
     {
         $this->deleteMessageActions = $condition;
 

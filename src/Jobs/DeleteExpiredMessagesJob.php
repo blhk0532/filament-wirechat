@@ -18,12 +18,16 @@ use Illuminate\Support\Facades\Log;
 
 class DeleteExpiredMessagesJob implements ShouldQueue
 {
-    use Batchable,Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Batchable;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     /**
      * Safely access the created_at property of the message.
      */
-    private function getCreatedAt(Message|Model $message): ?Carbon
+    private function getCreatedAt(Message | Model $message): ?Carbon
     {
         return $message->created_at ?? null;
     }

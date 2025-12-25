@@ -27,8 +27,8 @@ class MakePanelCommand extends Command
     public function __construct()
     {
         parent::__construct();
-        $this->stubPath = dirname(__DIR__, 3).'/stubs/PanelProvider.stub';
-        $this->defaultPanelProviderStubPath = dirname(__DIR__, 3).'/stubs/DefaultPanelProvider.stub';
+        $this->stubPath = dirname(__DIR__, 3) . '/stubs/PanelProvider.stub';
+        $this->defaultPanelProviderStubPath = dirname(__DIR__, 3) . '/stubs/DefaultPanelProvider.stub';
     }
 
     public function handle()
@@ -56,10 +56,10 @@ class MakePanelCommand extends Command
         }
 
         $id = Str::kebab($id);
-        $className = Str::studly($id).'PanelProvider';
+        $className = Str::studly($id) . 'PanelProvider';
         $namespace = 'App\\Providers\\Wirechat';
         $path = app_path("Providers/Wirechat/{$className}.php");
-        $displayPath = Str::after($path, base_path().DIRECTORY_SEPARATOR);
+        $displayPath = Str::after($path, base_path() . DIRECTORY_SEPARATOR);
 
         if (file_exists($path)) {
             $overwrite = confirm(
@@ -136,12 +136,12 @@ class MakePanelCommand extends Command
                             ? 'WirechatServiceProvider::class,'
                             : 'App\Providers\RouteServiceProvider::class,';
 
-            if (! Str::contains($appConfig, $providerClass.'::class')) {
+            if (! Str::contains($appConfig, $providerClass . '::class')) {
                 file_put_contents(
                     $appConfigPath,
                     str_replace(
                         $anchor,
-                        $anchor.PHP_EOL.'        '.$providerClass.'::class,',
+                        $anchor . PHP_EOL . '        ' . $providerClass . '::class,',
                         $appConfig
                     )
                 );

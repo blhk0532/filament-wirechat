@@ -165,7 +165,7 @@ class Conversation extends Model
      * @param  bool  $withoutGlobalScopes  Whether to ignore global scopes in the query.
      * @return Participant|null The corresponding participant or null if not found.
      */
-    public function participant(Model|Authenticatable $user, bool $withoutGlobalScopes = false): ?Participant
+    public function participant(Model | Authenticatable $user, bool $withoutGlobalScopes = false): ?Participant
     {
         $query = $this->relationLoaded('participants')
             ? $this->participants
@@ -207,7 +207,7 @@ class Conversation extends Model
             abort_if(
                 $participant->hasExited(),
                 403,
-                'Cannot add '.$user->wirechat_name.' because they left the group.'
+                'Cannot add ' . $user->wirechat_name . ' because they left the group.'
             );
 
             // Check if the participant was removed by an admin or owner
@@ -216,7 +216,7 @@ class Conversation extends Model
                 abort_if(
                     ! $undoAdminRemovalAction,
                     403,
-                    'Cannot add '.$user->wirechat_name.' because they were removed from the group by an Admin.'
+                    'Cannot add ' . $user->wirechat_name . ' because they were removed from the group by an Admin.'
                 );
 
                 // If undoAdminRemovalAction is true, remove admin removal actions and return the participant
@@ -373,7 +373,7 @@ class Conversation extends Model
      * @param  Model|\Illuminate\Contracts\Auth\Authenticatable  $reference  The reference user/model to exclude.
      * @return Participant|null The other participant or null if not applicable.
      */
-    public function peerParticipant(Model|Authenticatable $reference): ?Participant
+    public function peerParticipant(Model | Authenticatable $reference): ?Participant
     {
         // Return null if user does not belong to conversation
         if (! $reference->belongsToConversation($this)) {
@@ -399,7 +399,8 @@ class Conversation extends Model
 
         // else return participant who is not the reference
         /** @var Participant|null $peer */
-        $peer = $participants->reject(fn ($participant) => $participant->participantable_id == $reference->getKey() &&
+        $peer = $participants->reject(
+            fn ($participant) => $participant->participantable_id == $reference->getKey() &&
             $participant->participantable_type == $reference->getMorphClass()
         )->first();
 
@@ -424,7 +425,8 @@ class Conversation extends Model
 
         // Check if 'participants' relationship is already loaded
         if ($this->relationLoaded('participants')) {
-            return collect($this->participants)->reject(fn ($participant) => $participant->participantable_id == $reference->getKey() &&
+            return collect($this->participants)->reject(
+                fn ($participant) => $participant->participantable_id == $reference->getKey() &&
                 $participant->participantable_type == $reference->getMorphClass()
             );
         }
@@ -525,7 +527,7 @@ class Conversation extends Model
      * @param  Model|Participant  $user  The user model or Participant instance.
      * @return bool True if the conversation has been fully read, false otherwise.
      */
-    public function readBy(Model|Participant $user): bool
+    public function readBy(Model | Participant $user): bool
     {
         $participant = $user instanceof Participant ? $user : $this->participant($user);
 
@@ -538,7 +540,7 @@ class Conversation extends Model
      * @param  \Illuminate\Database\Eloquent\Model  $user
      * @return \Illuminate\Database\Eloquent\Collection<int,Message>
      */
-    public function unreadMessages(Model|Authenticatable $user): \Illuminate\Database\Eloquent\Collection
+    public function unreadMessages(Model | Authenticatable $user): \Illuminate\Database\Eloquent\Collection
     {
         $participant = $this->participant($user);
 
@@ -636,7 +638,7 @@ class Conversation extends Model
      *
      * @param  Model|Authenticatable  $user  The participant whose messages are to be deleted.
      */
-    public function deleteFor(Model|Authenticatable $user): ?bool
+    public function deleteFor(Model | Authenticatable $user): ?bool
     {
         // Ensure the participant belongs to the conversation
         abort_unless($user->belongsToConversation($this), 403, 'User does not belong to conversation');
@@ -681,14 +683,14 @@ class Conversation extends Model
     /**
      * Check if a given user has deleted all messages in the conversation using the deleteForMe
      */
-    public function hasBeenDeletedBy(Model|Authenticatable $user): bool
+    public function hasBeenDeletedBy(Model | Authenticatable $user): bool
     {
         $participant = $this->participant($user);
 
         return $participant->hasDeletedConversation(checkDeletionExpired: true);
     }
 
-    public function clearFor(Model|Authenticatable $user)
+    public function clearFor(Model | Authenticatable $user)
     {
         // Ensure the participant belongs to the conversation
         abort_unless($user->belongsToConversation($this), 403, 'User does not belong to conversation');
@@ -743,7 +745,7 @@ class Conversation extends Model
      *  Role Checks
      * -------------------------------------------
      */
-    public function isOwner(Model|Authenticatable $model): bool
+    public function isOwner(Model | Authenticatable $model): bool
     {
 
         $participant = $this->participant($model);
@@ -756,7 +758,7 @@ class Conversation extends Model
      *  Role Checks
      * -------------------------------------------
      */
-    public function isAdmin(Model|Authenticatable $model): bool
+    public function isAdmin(Model | Authenticatable $model): bool
     {
 
         $participant = $this->participant($model);

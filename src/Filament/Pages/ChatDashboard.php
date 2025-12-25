@@ -15,7 +15,7 @@ class ChatDashboard extends Page
 
     protected static ?string $navigationLabel = 'Wirechat';
 
-    protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-chat-bubble-left-right';
+    protected static \BackedEnum | string | null $navigationIcon = 'heroicon-o-chat-bubble-left-right';
 
     protected static bool $shouldRegisterNavigation = true;
 

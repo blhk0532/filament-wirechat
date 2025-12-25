@@ -6,9 +6,9 @@ use Closure;
 
 trait HasGroupActions
 {
-    protected bool|Closure $createGroupAction = false;
+    protected bool | Closure $createGroupAction = false;
 
-    public function createGroupAction(bool|Closure $condition = true): static
+    public function createGroupAction(bool | Closure $condition = true): static
     {
         $this->createGroupAction = $condition;
 

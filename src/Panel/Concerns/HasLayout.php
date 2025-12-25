@@ -16,12 +16,12 @@ trait HasLayout
     /**
      * The layout view to use.
      */
-    protected string|Closure|null $layout = 'wirechat::layouts.app';
+    protected string | Closure | null $layout = 'wirechat::layouts.app';
 
     /**
      * Set the layout view.
      */
-    public function layout(string|Closure|null $layout): static
+    public function layout(string | Closure | null $layout): static
     {
         $this->layout = $layout;
 

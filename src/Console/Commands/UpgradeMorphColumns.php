@@ -26,7 +26,7 @@ class UpgradeMorphColumns extends Command
         $driver = Schema::getConnection()->getDriverName();
 
         $this->line("<info>Driver:</info> {$driver}");
-        $this->line('<info>Dry run:</info> '.($dry ? 'yes' : 'no'));
+        $this->line('<info>Dry run:</info> ' . ($dry ? 'yes' : 'no'));
 
         // Exactly these two tables
         $plans = [
@@ -54,7 +54,7 @@ class UpgradeMorphColumns extends Command
             foreach ($columns as $step) {
                 $col = $step['col'];
                 $isId = $step['is_id'];
-                $to = 'varchar('.($isId ? self::ID_LEN : self::TYPE_LEN).')';
+                $to = 'varchar(' . ($isId ? self::ID_LEN : self::TYPE_LEN) . ')';
 
                 if (! Schema::hasColumn($table, $col)) {
                     $this->warn("  - {$col} missing, skip.");
@@ -66,7 +66,7 @@ class UpgradeMorphColumns extends Command
                 $current = Schema::getColumnType($table, $col); // integer, bigint, uuid, string, text, char, ...
                 $needs = ! in_array($current, ['string', 'text'], true);
 
-                $this->line("  - {$col}: {$current} → {$to}".($needs ? '' : ' (ok)'));
+                $this->line("  - {$col}: {$current} → {$to}" . ($needs ? '' : ' (ok)'));
                 if (! $needs || $dry) {
                     continue;
                 }
@@ -76,6 +76,7 @@ class UpgradeMorphColumns extends Command
                         // Cast to text first, then tighten to varchar(N)
                         DB::statement("ALTER TABLE {$table} ALTER COLUMN {$col} TYPE text USING {$col}::text");
                         DB::statement("ALTER TABLE {$table} ALTER COLUMN {$col} TYPE {$to}");
+
                         break;
 
                     case 'mysql':
@@ -83,10 +84,12 @@ class UpgradeMorphColumns extends Command
                         // For *_id columns, force ASCII for smaller indexes (optional but nice)
                         $charset = $isId ? ' CHARACTER SET ascii COLLATE ascii_bin' : '';
                         DB::statement("ALTER TABLE {$table} MODIFY {$col} {$to}{$charset}");
+
                         break;
 
                     case 'sqlite':
                         $this->warn('    SQLite: in-place ALTER not supported; consider a table rebuild or migrate:fresh.');
+
                         break;
 
                     default:
@@ -94,6 +97,7 @@ class UpgradeMorphColumns extends Command
                         Schema::table($table, function (Blueprint $t) use ($col, $isId) {
                             $t->string($col, $isId ? self::ID_LEN : self::TYPE_LEN)->change();
                         });
+
                         break;
                 }
 

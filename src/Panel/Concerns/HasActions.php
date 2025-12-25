@@ -6,11 +6,11 @@ use Closure;
 
 trait HasActions
 {
-    protected bool|Closure $redirectToHomeAction = false;
+    protected bool | Closure $redirectToHomeAction = false;
 
-    protected string|Closure|null $homeButtonUrl = null;
+    protected string | Closure | null $homeButtonUrl = null;
 
-    public function redirectToHomeAction(bool|Closure $condition = true): static
+    public function redirectToHomeAction(bool | Closure $condition = true): static
     {
         $this->redirectToHomeAction = $condition;
 
@@ -26,9 +26,8 @@ trait HasActions
      * Set the URL for the home button redirect.
      *
      * @param  string|Closure|null  $url  The URL, route name, 'default' for default Filament panel, or null to use config
-     * @return static
      */
-    public function homeButtonUrl(string|Closure|null $url): static
+    public function homeButtonUrl(string | Closure | null $url): static
     {
         $this->homeButtonUrl = $url;
 
@@ -37,8 +36,6 @@ trait HasActions
 
     /**
      * Get the evaluated home button URL.
-     *
-     * @return string|null
      */
     public function getHomeButtonUrl(): ?string
     {

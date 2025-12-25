@@ -9,9 +9,9 @@ class ChatsPage extends Page
 {
     protected static ?string $slug = 'chats';
 
-    protected static \UnitEnum|string|null $navigationGroup = 'Chats';
+    protected static \UnitEnum | string | null $navigationGroup = 'Chats';
 
-    protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-chat-bubble-left-right';
+    protected static \BackedEnum | string | null $navigationIcon = 'heroicon-o-chat-bubble-left-right';
 
     protected string $view = 'filament-wirechat::livewire.pages.chats';
 

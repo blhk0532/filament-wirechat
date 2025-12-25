@@ -12,8 +12,10 @@ use Illuminate\Queue\SerializesModels;
 
 class MessageDeleted implements ShouldBroadcastNow
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use Dispatchable;
     use InteractsWithPanel;
+    use InteractsWithSockets;
+    use SerializesModels;
 
     public $message;
     // public $receiver;

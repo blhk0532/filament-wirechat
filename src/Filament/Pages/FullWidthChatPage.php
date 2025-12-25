@@ -34,7 +34,7 @@ class FullWidthChatPage extends Page
 
     public function getTitle(): string
     {
-        if (!$this->conversation) {
+        if (! $this->conversation) {
             return 'Chat';
         }
 

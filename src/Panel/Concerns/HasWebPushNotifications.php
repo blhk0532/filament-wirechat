@@ -21,20 +21,20 @@ trait HasWebPushNotifications
     /**
      * Whether web push notifications are enabled.
      */
-    protected bool|Closure $hasWebPushNotifications = false;
+    protected bool | Closure $hasWebPushNotifications = false;
 
     /**
      * Service worker path (absolute URL or asset helper), or a Closure returning it.
      * Set automatically to asset('sw.js') on first call to webPushNotifications()
      * unless explicitly overridden via serviceWorkerPath().
      */
-    protected string|Closure|null $serviceWorkerPath = null;
+    protected string | Closure | null $serviceWorkerPath = null;
 
     /**
      * Enable/disable web push notifications.
      * Also sets a default service worker path to asset('sw.js') if none was set.
      */
-    public function webPushNotifications(bool|Closure $condition = true): static
+    public function webPushNotifications(bool | Closure $condition = true): static
     {
         $this->hasWebPushNotifications = $condition;
 
@@ -57,7 +57,7 @@ trait HasWebPushNotifications
     /**
      * Explicitly set/override the service worker path.
      */
-    public function serviceWorkerPath(string|Closure $path): static
+    public function serviceWorkerPath(string | Closure $path): static
     {
         $this->serviceWorkerPath = $path;
 

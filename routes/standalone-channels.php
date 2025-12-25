@@ -46,6 +46,7 @@ foreach ($panels as $panel) {
             foreach ($guards as $guard) {
                 if (Auth::guard($guard)->check()) {
                     $authenticatedUser = Auth::guard($guard)->user();
+
                     break;
                 }
             }
@@ -73,6 +74,7 @@ foreach ($panels as $panel) {
             foreach ($guards as $guard) {
                 if (Auth::guard($guard)->check()) {
                     $authenticatedUser = Auth::guard($guard)->user();
+
                     break;
                 }
             }

@@ -9,9 +9,9 @@ trait HasChatsSearch
     /**
      * Enable or disable chat list search.
      */
-    protected bool|Closure $hasChatsSearch = false;
+    protected bool | Closure $hasChatsSearch = false;
 
-    public function chatsSearch(bool|Closure $condition = true): static
+    public function chatsSearch(bool | Closure $condition = true): static
     {
         $this->hasChatsSearch = $condition;
 

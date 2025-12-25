@@ -18,8 +18,12 @@ use Illuminate\Support\Facades\Log;
 
 class NotifyParticipants implements ShouldQueue
 {
-    use Batchable,Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Batchable;
+    use Dispatchable;
     use InteractsWithPanel;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     /**
      * Set a maximum time limit of 60 seconds for the job.
@@ -38,7 +42,6 @@ class NotifyParticipants implements ShouldQueue
     protected $participantsTable;
 
     public function __construct(
-
         public Conversation $conversation,
         #[WithoutRelations]
         public Message $message,
@@ -71,7 +74,7 @@ class NotifyParticipants implements ShouldQueue
             // Delete the job and stop further processing
             // $this->fail();
             $this->delete();
-            Log::error('Participants not notified : Job older than '.$messageAgeInSeconds.'seconds');
+            Log::error('Participants not notified : Job older than ' . $messageAgeInSeconds . 'seconds');
 
             return;
         }

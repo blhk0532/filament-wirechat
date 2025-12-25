@@ -10,19 +10,19 @@ trait HasEmojiPicker
     /**
      * Enable or disable emoji picker.
      */
-    protected bool|Closure $hasEmojiPicker = false;
+    protected bool | Closure $hasEmojiPicker = false;
 
     /**
      * Emoji picker position (docked or floating).
      */
-    protected EmojiPickerPosition|Closure|null $emojiPickerPosition = null;
+    protected EmojiPickerPosition | Closure | null $emojiPickerPosition = null;
 
     /**
      * Configure emoji picker.
      */
     public function emojiPicker(
-        bool|Closure $condition = true,
-        EmojiPickerPosition|string|Closure|null $position = EmojiPickerPosition::Floating
+        bool | Closure $condition = true,
+        EmojiPickerPosition | string | Closure | null $position = EmojiPickerPosition::Floating
     ): static {
         $this->hasEmojiPicker = $condition;
 

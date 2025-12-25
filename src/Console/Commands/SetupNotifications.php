@@ -63,6 +63,6 @@ class SetupNotifications extends Command
 
     protected function getStub(string $stub)
     {
-        return file_get_contents(__DIR__."/../../../stubs/{$stub}");
+        return file_get_contents(__DIR__ . "/../../../stubs/{$stub}");
     }
 }

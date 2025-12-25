@@ -174,7 +174,7 @@ return [
      |--------------------------------------------------------------------------
      |
      | The URL to redirect to when clicking the home/redirect button in the chat header.
-     | 
+     |
      | Options:
      | - '/admin' (default): Redirects to /admin (Filament admin panel)
      | - 'default': Uses the default Filament panel URL

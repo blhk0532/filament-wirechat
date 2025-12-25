@@ -18,12 +18,12 @@ trait HasSearchableAttributes
      *
      * @var array<string>|Closure|null
      */
-    protected array|Closure|null $searchableAttributes = null;
+    protected array | Closure | null $searchableAttributes = null;
 
     /**
      * Set the model’s searchable fields.
      */
-    public function searchableAttributes(array|Closure $attributes): static
+    public function searchableAttributes(array | Closure $attributes): static
     {
         $this->searchableAttributes = $attributes;
 

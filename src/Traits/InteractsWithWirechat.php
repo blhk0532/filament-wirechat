@@ -130,7 +130,7 @@ trait InteractsWithWirechat
     /**
      * Create group
      */
-    public function createGroup(string $name, ?string $description = null, ?UploadedFile $photo = null, Panel|string|null $panel = null): Conversation
+    public function createGroup(string $name, ?string $description = null, ?UploadedFile $photo = null, Panel | string | null $panel = null): Conversation
     {
 
         // abort if is not allowed to create new groups
@@ -454,7 +454,7 @@ trait InteractsWithWirechat
      * Check if the user is an admin in a specific conversation.
      * Or if is owner , because owner can also be admin
      */
-    public function isAdminIn(Group|Conversation $entity): bool
+    public function isAdminIn(Group | Conversation $entity): bool
     {
 
         // check if is not Conversation model
@@ -476,7 +476,7 @@ trait InteractsWithWirechat
     /**
      * Check if the user is the owner of a specific conversation.
      */
-    public function isOwnerOf(Group|Conversation $entity): bool
+    public function isOwnerOf(Group | Conversation $entity): bool
     {
 
         // check if is not Conversation model

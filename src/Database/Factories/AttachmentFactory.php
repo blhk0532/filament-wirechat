@@ -20,18 +20,18 @@ class AttachmentFactory extends Factory
      */
     public function definition(): array
     {
-        $fileName = fake()->uuid().'.'.fake()->fileExtension();
-        $originalName = fake()->word().'.'.fake()->fileExtension();
+        $fileName = fake()->uuid() . '.' . fake()->fileExtension();
+        $originalName = fake()->word() . '.' . fake()->fileExtension();
         $mimeType = fake()->mimeType();
 
         return [
             'attachable_type' => Message::class,
             'attachable_id' => Message::factory(),
-            'file_path' => 'attachments/'.$fileName,
+            'file_path' => 'attachments/' . $fileName,
             'file_name' => $fileName,
             'original_name' => $originalName,
             'mime_type' => $mimeType,
-            'url' => '/storage/attachments/'.$fileName,
+            'url' => '/storage/attachments/' . $fileName,
         ];
     }
 
@@ -43,7 +43,7 @@ class AttachmentFactory extends Factory
         return $this->state(function (array $attributes) {
             $extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
             $ext = fake()->randomElement($extensions);
-            $fileName = fake()->uuid().'.'.$ext;
+            $fileName = fake()->uuid() . '.' . $ext;
             $mimeType = match ($ext) {
                 'jpg', 'jpeg' => 'image/jpeg',
                 'png' => 'image/png',
@@ -54,10 +54,10 @@ class AttachmentFactory extends Factory
 
             return [
                 'file_name' => $fileName,
-                'original_name' => fake()->word().'.'.$ext,
-                'file_path' => 'attachments/'.$fileName,
+                'original_name' => fake()->word() . '.' . $ext,
+                'file_path' => 'attachments/' . $fileName,
                 'mime_type' => $mimeType,
-                'url' => '/storage/attachments/'.$fileName,
+                'url' => '/storage/attachments/' . $fileName,
             ];
         });
     }
@@ -70,7 +70,7 @@ class AttachmentFactory extends Factory
         return $this->state(function (array $attributes) {
             $extensions = ['pdf', 'doc', 'docx', 'txt'];
             $ext = fake()->randomElement($extensions);
-            $fileName = fake()->uuid().'.'.$ext;
+            $fileName = fake()->uuid() . '.' . $ext;
             $mimeType = match ($ext) {
                 'pdf' => 'application/pdf',
                 'doc' => 'application/msword',
@@ -81,10 +81,10 @@ class AttachmentFactory extends Factory
 
             return [
                 'file_name' => $fileName,
-                'original_name' => fake()->word().'.'.$ext,
-                'file_path' => 'attachments/'.$fileName,
+                'original_name' => fake()->word() . '.' . $ext,
+                'file_path' => 'attachments/' . $fileName,
                 'mime_type' => $mimeType,
-                'url' => '/storage/attachments/'.$fileName,
+                'url' => '/storage/attachments/' . $fileName,
             ];
         });
     }

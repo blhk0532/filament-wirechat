@@ -53,7 +53,7 @@ class Panel
     use HasUsersSearch;
     use HasWebPushNotifications;
 
-    protected bool|Closure $isDefault = false;
+    protected bool | Closure $isDefault = false;
 
     public static function make(): static
     {
@@ -61,7 +61,7 @@ class Panel
 
     }
 
-    public function default(bool|Closure $condition = true): static
+    public function default(bool | Closure $condition = true): static
     {
         $this->isDefault = $condition;
 

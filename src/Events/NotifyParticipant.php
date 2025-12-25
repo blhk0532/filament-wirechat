@@ -17,8 +17,10 @@ use Illuminate\Queue\SerializesModels;
 
 class NotifyParticipant implements ShouldBroadcastNow
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use Dispatchable;
     use InteractsWithPanel;
+    use InteractsWithSockets;
+    use SerializesModels;
 
     public $participantType;
 
@@ -34,7 +36,7 @@ class NotifyParticipant implements ShouldBroadcastNow
      *
      * @param  Participant|Model  $participant  Participant instance OR a model representing the target participantable
      */
-    public function __construct(public Participant|Model $participant, public Message $message, ?string $panel = null)
+    public function __construct(public Participant | Model $participant, public Message $message, ?string $panel = null)
     {
         if ($participant instanceof Participant) {
             $this->participantType = $participant->participantable_type;

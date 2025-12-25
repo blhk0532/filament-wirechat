@@ -98,21 +98,21 @@ class InstallWirechatCommand extends Command
         echo "\n";
         $this->promptInfo('🎉 Filament Wirechat installed successfully!');
         echo "\n";
-        
+
         $this->promptInfo('📋 Next Steps:');
         echo "\n";
-        
+
         $this->promptNote('1️⃣  Update Your User Model');
         $this->promptNote('   → Add InteractsWithWirechat trait and implement WirechatUser contract');
         $this->promptNote('   → See README.md for detailed instructions');
         echo "\n";
-        
+
         $this->promptNote('2️⃣  Register Plugin in Filament Panel');
         $this->promptNote('   → Open: app/Providers/Filament/AdminPanelProvider.php');
         $this->promptNote('   → Add: FilamentWirechatPlugin::make() to ->plugins([])');
         $this->promptNote('   → Add: ->databaseNotifications() to enable notifications bell');
         echo "\n";
-        
+
         $this->promptNote('3️⃣  Configure Broadcasting (Required for real-time messaging)');
         $this->promptNote('   → Set BROADCAST_DRIVER in .env file:');
         $this->promptNote('      • BROADCAST_DRIVER=reverb (Recommended - Laravel Reverb, free)');
@@ -121,17 +121,17 @@ class InstallWirechatCommand extends Command
         $this->promptNote('      • BROADCAST_DRIVER=ably (Requires Ably account)');
         $this->promptNote('   → For Reverb: Start server with: php artisan reverb:start');
         echo "\n";
-        
+
         $this->promptNote('4️⃣  Start Queue Worker (Required for background jobs)');
         $this->promptNote('   → Development: php artisan queue:work');
         $this->promptNote('   → Production: Use Supervisor or similar process manager');
         echo "\n";
-        
+
         $this->promptNote('5️⃣  Build Frontend Assets');
         $this->promptNote('   → Development: npm run dev');
         $this->promptNote('   → Production: npm run build');
         echo "\n";
-        
+
         $this->promptInfo('🚀 You\'re all set! Visit your Filament panel to start using Wirechat!');
         $this->promptNote('   → Access chats via navigation or widget in your admin panel');
         if ($this->chatsPanelProviderCreated) {
@@ -172,7 +172,7 @@ class InstallWirechatCommand extends Command
         $missingMigrations = [];
 
         foreach ($migrationFiles as $migrationFile) {
-            $migrationPath = $migrationsPath.'/'.$migrationFile;
+            $migrationPath = $migrationsPath . '/' . $migrationFile;
             if (! file_exists($migrationPath)) {
                 $missingMigrations[] = $migrationFile;
             }
@@ -295,7 +295,7 @@ class InstallWirechatCommand extends Command
         $this->line('<fg=gray>────────────────────────────────────────────────────────</>');
         $this->line('<fg=gray>Wirechat – Simple Chat System for Laravel Filament</>');
         $this->line('');
-        
+
         $this->line('<fg=cyan>✨ If you like this package, please consider leaving a star on GitHub!</>');
         $this->line('<fg=gray>   https://github.com/adultdate/filament-wirechat</>');
         $this->line('');

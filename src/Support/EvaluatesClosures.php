@@ -99,6 +99,7 @@ trait EvaluatesClosures
 
         // Throw an exception for unresolvable required parameters
         $staticClass = static::class;
+
         throw new BindingResolutionException("Unresolvable Closure parameter [\${$parameterName}] for [{$staticClass}].");
     }
 

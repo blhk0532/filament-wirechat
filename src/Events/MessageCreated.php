@@ -15,8 +15,12 @@ use Illuminate\Queue\SerializesModels;
 
 class MessageCreated implements ShouldBroadcast
 {
-    use Dispatchable, InteractsWithQueue,InteractsWithSockets, Queueable ,SerializesModels;
+    use Dispatchable;
     use InteractsWithPanel;
+    use InteractsWithQueue;
+    use InteractsWithSockets;
+    use Queueable;
+    use SerializesModels;
 
     public $message;
     // public $receiver;
@@ -73,6 +77,7 @@ class MessageCreated implements ShouldBroadcast
         if (! $panelInstance) {
             return config('filament-wirechat.broadcasting.messages_queue', 'default');
         }
+
         return $panelInstance->getMessagesQueue();
     }
 

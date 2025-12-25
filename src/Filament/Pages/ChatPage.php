@@ -36,7 +36,7 @@ class ChatPage extends Page
 
     public function getTitle(): string
     {
-        if (!$this->conversation) {
+        if (! $this->conversation) {
             return ' ';
         }
 

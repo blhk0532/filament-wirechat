@@ -20,7 +20,7 @@ trait HasHeading
      *                                - null  = explicitly no heading
      *                                - string|Closure = custom heading
      */
-    protected string|Closure|null|false $heading = false;
+    protected string | Closure | null | false $heading = false;
 
     /**
      * Tracks if heading() setter was called.
@@ -30,7 +30,7 @@ trait HasHeading
     /**
      * Set the heading (string, Closure, or null) and mark as explicitly set.
      */
-    public function heading(string|Closure|null $value): static
+    public function heading(string | Closure | null $value): static
     {
         $this->headingWasSet = true;
         $this->heading = $value;

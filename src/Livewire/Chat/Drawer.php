@@ -35,7 +35,7 @@ class Drawer extends Component
     {
 
         $componentClass = app(ComponentRegistry::class)->getClass($component);
-        $id = md5($component.serialize($arguments));
+        $id = md5($component . serialize($arguments));
 
         $arguments = collect($arguments)
             ->merge($this->resolveComponentProps($arguments, new $componentClass))

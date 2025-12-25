@@ -17,7 +17,7 @@ trait HasGroups
     /**
      * Whether group functionality is enabled.
      */
-    protected bool|Closure $hasGroups = true;
+    protected bool | Closure $hasGroups = true;
 
     /**
      * The maximum number of members allowed in a group.
@@ -27,7 +27,7 @@ trait HasGroups
     /**
      * Enable or disable groups.
      */
-    public function groups(bool|Closure $condition = true): static
+    public function groups(bool | Closure $condition = true): static
     {
         $this->hasGroups = $condition;
 

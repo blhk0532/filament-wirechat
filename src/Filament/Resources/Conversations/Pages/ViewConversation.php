@@ -15,7 +15,7 @@ class ViewConversation extends ViewRecord
         return true;
     }
 
-    public function getDefaultActiveTab(): string|int|null
+    public function getDefaultActiveTab(): string | int | null
     {
         return 'messages';
     }

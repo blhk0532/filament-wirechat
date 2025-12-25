@@ -17,10 +17,10 @@ class MigrateConfigToPanelCommand extends Command
         $this->info('Starting Wirechat upgrade to panel...');
 
         $id = 'chats';
-        $className = Str::studly($id).'PanelProvider';
+        $className = Str::studly($id) . 'PanelProvider';
         $namespace = 'App\\Providers\\Wirechat';
         $path = app_path("Providers/Wirechat/{$className}.php");
-        $displayPath = Str::after($path, base_path().DIRECTORY_SEPARATOR);
+        $displayPath = Str::after($path, base_path() . DIRECTORY_SEPARATOR);
 
         // Exit if panel file already exists
         if (file_exists($path)) {
@@ -62,20 +62,20 @@ class MigrateConfigToPanelCommand extends Command
 
         // Build panel configuration, omitting defaults
         $panelConfig = [];
-        $panelConfig[] = "->id('".$id."')";
-        $panelConfig[] = "->path('".($config['routes']['prefix'] ?? 'chats')."')";
+        $panelConfig[] = "->id('" . $id . "')";
+        $panelConfig[] = "->path('" . ($config['routes']['prefix'] ?? 'chats') . "')";
 
         if (($config['routes']['middleware'] ?? ['web', 'auth']) !== $defaults['routes']['middleware']) {
-            $panelConfig[] = '->middleware('.$this->arrayExport($config['routes']['middleware'] ?? ['web', 'auth']).')';
+            $panelConfig[] = '->middleware(' . $this->arrayExport($config['routes']['middleware'] ?? ['web', 'auth']) . ')';
         }
         if (($config['routes']['guards'] ?? ['web']) !== $defaults['routes']['guards']) {
-            $panelConfig[] = '->guards('.$this->arrayExport($config['routes']['guards'] ?? ['web']).')';
+            $panelConfig[] = '->guards(' . $this->arrayExport($config['routes']['guards'] ?? ['web']) . ')';
         }
         if (($config['home_route'] ?? '/') !== $defaults['home_route']) {
-            $panelConfig[] = "->homeUrl('".($config['home_route'] ?? '/')."')";
+            $panelConfig[] = "->homeUrl('" . ($config['home_route'] ?? '/') . "')";
         }
         if (($config['layout'] ?? 'wirechat::layouts.app') !== $defaults['layout']) {
-            $panelConfig[] = "->layout('".($config['layout'] ?? 'wirechat::layouts.app')."')";
+            $panelConfig[] = "->layout('" . ($config['layout'] ?? 'wirechat::layouts.app') . "')";
         }
 
         $panelConfig[] = '->emojiPicker()';
@@ -98,53 +98,53 @@ class MigrateConfigToPanelCommand extends Command
             $panelConfig[] = '->fileAttachments()';
         }
         if (($config['max_group_members'] ?? 1000) !== $defaults['max_group_members']) {
-            $panelConfig[] = '->maxGroupMembers('.($config['max_group_members'] ?? 1000).')';
+            $panelConfig[] = '->maxGroupMembers(' . ($config['max_group_members'] ?? 1000) . ')';
         }
         if (($config['attachments']['max_uploads'] ?? 10) !== $defaults['attachments']['max_uploads']) {
-            $panelConfig[] = '->maxUploads('.($config['attachments']['max_uploads'] ?? 10).')';
+            $panelConfig[] = '->maxUploads(' . ($config['attachments']['max_uploads'] ?? 10) . ')';
         }
         if (($config['attachments']['media_mimes'] ?? ['png', 'jpg', 'jpeg', 'gif', 'mov', 'mp4']) !== $defaults['attachments']['media_mimes']) {
-            $panelConfig[] = '->mediaMimes('.$this->arrayExport($config['attachments']['media_mimes'] ?? ['png', 'jpg', 'jpeg', 'gif', 'mov', 'mp4']).')';
+            $panelConfig[] = '->mediaMimes(' . $this->arrayExport($config['attachments']['media_mimes'] ?? ['png', 'jpg', 'jpeg', 'gif', 'mov', 'mp4']) . ')';
         }
         if (($config['attachments']['media_max_upload_size'] ?? 12288) !== $defaults['attachments']['media_max_upload_size']) {
-            $panelConfig[] = '->mediaMaxUploadSize('.($config['attachments']['media_max_upload_size'] ?? 12288).')';
+            $panelConfig[] = '->mediaMaxUploadSize(' . ($config['attachments']['media_max_upload_size'] ?? 12288) . ')';
         }
         if (($config['attachments']['file_mimes'] ?? ['zip', 'rar', 'txt', 'pdf']) !== $defaults['attachments']['file_mimes']) {
-            $panelConfig[] = '->fileMimes('.$this->arrayExport($config['attachments']['file_mimes'] ?? ['zip', 'rar', 'txt', 'pdf']).')';
+            $panelConfig[] = '->fileMimes(' . $this->arrayExport($config['attachments']['file_mimes'] ?? ['zip', 'rar', 'txt', 'pdf']) . ')';
         }
         if (($config['attachments']['file_max_upload_size'] ?? 12288) !== $defaults['attachments']['file_max_upload_size']) {
-            $panelConfig[] = '->fileMaxUploadSize('.($config['attachments']['file_max_upload_size'] ?? 12288).')';
+            $panelConfig[] = '->fileMaxUploadSize(' . ($config['attachments']['file_max_upload_size'] ?? 12288) . ')';
         }
         if (($config['notifications']['enabled'] ?? true) !== $defaults['notifications']['enabled'] ||
             ($config['notifications']['main_sw_script'] ?? 'sw.js') !== $defaults['notifications']['main_sw_script']) {
             $panelConfig[] = '->webPushNotifications()';
             if (($config['notifications']['main_sw_script'] ?? 'sw.js') !== $defaults['notifications']['main_sw_script']) {
-                $panelConfig[] = "->serviceWorkerPath(asset('".($config['notifications']['main_sw_script'] ?? 'sw.js')."'))";
+                $panelConfig[] = "->serviceWorkerPath(asset('" . ($config['notifications']['main_sw_script'] ?? 'sw.js') . "'))";
             }
         }
 
         // Generate panel file content
         $panelCode = '<?php
 
-namespace '.$namespace.";
+namespace ' . $namespace . ";
 
 use Adultdate\Wirechat\Panel;
 use Adultdate\Wirechat\PanelProvider;
 use Adultdate\Wirechat\Support\Color;
 
-class ".$className.' extends PanelProvider
+class " . $className . ' extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
         return $panel
-            '.implode("\n            ", $panelConfig).'
+            ' . implode("\n            ", $panelConfig) . '
             ->default();
     }
 }';
 
         if ($this->option('dry-run')) {
             $this->info("Dry run: Panel provider would be created at: {$displayPath}");
-            $this->info("Generated panel provider code:\n".$panelCode);
+            $this->info("Generated panel provider code:\n" . $panelCode);
             $this->info("Provider would be registered: {$namespace}\\{$className}");
             $this->info('Dry run complete! No changes were made.');
 
@@ -208,7 +208,7 @@ class ".$className.' extends PanelProvider
         if ($this->option('dry-run')) {
 
             $this->info(
-                'Dry run: Would register provider in '.
+                'Dry run: Would register provider in ' .
                 (version_compare(App::version(), '11.0', '>=')
                     ? 'bootstrap/providers.php'
                     : 'config/app.php')
@@ -233,7 +233,7 @@ class ".$className.' extends PanelProvider
             if (! str_contains($contents, $providerClass)) {
                 file_put_contents($appConfigPath, str_replace(
                     'App\\Providers\\RouteServiceProvider::class,',
-                    "{$providerClass}::class,".PHP_EOL.'        App\\Providers\\RouteServiceProvider::class,',
+                    "{$providerClass}::class," . PHP_EOL . '        App\\Providers\\RouteServiceProvider::class,',
                     $contents
                 ));
             }
@@ -250,9 +250,9 @@ class ".$className.' extends PanelProvider
 
         // Map each item to a quoted string and join with commas
         $items = array_map(function ($item) {
-            return "'".addslashes($item)."'";
+            return "'" . addslashes($item) . "'";
         }, $arr);
 
-        return '['.implode(',', $items).']';
+        return '[' . implode(',', $items) . ']';
     }
 }

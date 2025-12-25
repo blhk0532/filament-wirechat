@@ -13,16 +13,20 @@ use Illuminate\Queue\SerializesModels;
 
 class DeleteConversationJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
     use InteractsWithPanel;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     /**
      * Create a new job instance.
      */
     public function __construct(
         #[WithoutRelations]
-        public Conversation $conversation, ?string $panel = null)
-    {
+        public Conversation $conversation,
+        ?string $panel = null
+    ) {
         $this->resolvePanel($panel);
         //
         $this->onQueue($this->getPanel()->getEventsQueue());

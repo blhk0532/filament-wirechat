@@ -233,7 +233,7 @@ class Message extends Model
     /**
      * Check if the message has been read by a specific user.
      */
-    public function readBy(Model|Participant $user): bool
+    public function readBy(Model | Participant $user): bool
     {
         if ($user instanceof Participant) {
             $user = $user->participantable;
@@ -285,7 +285,7 @@ class Message extends Model
         return $this->parent()->exists();
     }
 
-    public function scopeWhereIsNotOwnedBy($query, Model|Authenticatable $user)
+    public function scopeWhereIsNotOwnedBy($query, Model | Authenticatable $user)
     {
 
         $query->where(function ($query) use ($user) {
@@ -306,7 +306,7 @@ class Message extends Model
      *
      * @return bool|null
      */
-    public function deleteFor(Model|Authenticatable $user)
+    public function deleteFor(Model | Authenticatable $user)
     {
 
         $conversation = $this->conversation;

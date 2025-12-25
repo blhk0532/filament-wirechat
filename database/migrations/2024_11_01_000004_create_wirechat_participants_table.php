@@ -1,8 +1,8 @@
 <?php
 
-use Adultdate\Wirechat\Facades\Wirechat;
 use AdultDate\FilamentWirechat\Models\Conversation;
 use AdultDate\FilamentWirechat\Models\Participant;
+use Adultdate\Wirechat\Facades\Wirechat;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;

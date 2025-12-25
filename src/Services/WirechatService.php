@@ -35,7 +35,7 @@ class WirechatService
      */
     public static function formatTableName(string $table): string
     {
-        return config('filament-wirechat.table_prefix').$table;
+        return config('filament-wirechat.table_prefix') . $table;
     }
 
     /**
@@ -146,7 +146,8 @@ class WirechatService
      */
     public static function usesUuidForConversations(): bool
     {
-        return (bool) config('filament-wirechat.uses_uuid_for_conversations',
+        return (bool) config(
+            'filament-wirechat.uses_uuid_for_conversations',
             config('filament-wirechat.uuids', false) // legacy fallback
         );
     }

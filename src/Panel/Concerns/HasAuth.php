@@ -18,14 +18,14 @@ trait HasAuth
      *
      * @var array<string>|Closure
      */
-    protected array|Closure $guards = ['web'];
+    protected array | Closure $guards = ['web'];
 
     /**
      * Set the guards to be used.
      *
      * @param  array<string>|Closure  $guards
      */
-    public function guards(array|Closure $guards): static
+    public function guards(array | Closure $guards): static
     {
         $this->guards = $guards;
 

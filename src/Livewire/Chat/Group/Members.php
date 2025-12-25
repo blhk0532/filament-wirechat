@@ -164,7 +164,7 @@ class Members extends ModalComponent
                             }
 
                             if (in_array($field, $columnCache[$table])) {
-                                $query3->orWhere($field, 'LIKE', '%'.$this->search.'%');
+                                $query3->orWhere($field, 'LIKE', '%' . $this->search . '%');
                             }
                         }
                     });

@@ -12,7 +12,7 @@ return new class extends Migration
         $tablePrefix = config('filament-wirechat.table_prefix', 'wirechat_');
         $usesUuid = config('filament-wirechat.uses_uuid_for_conversations', false);
 
-        Schema::create($tablePrefix.'conversations', function (Blueprint $table) use ($usesUuid) {
+        Schema::create($tablePrefix . 'conversations', function (Blueprint $table) use ($usesUuid) {
             if ($usesUuid) {
                 $table->uuid('id')->primary();
             } else {
@@ -30,6 +30,6 @@ return new class extends Migration
     public function down(): void
     {
         $tablePrefix = config('filament-wirechat.table_prefix', 'wirechat_');
-        Schema::dropIfExists($tablePrefix.'conversations');
+        Schema::dropIfExists($tablePrefix . 'conversations');
     }
 };

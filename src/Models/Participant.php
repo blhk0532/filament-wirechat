@@ -177,7 +177,7 @@ class Participant extends Model
      *
      * @param  Builder<Model>  $query
      */
-    public function scopeWhereParticipantable(Builder $query, Model|Authenticatable $model): void
+    public function scopeWhereParticipantable(Builder $query, Model | Authenticatable $model): void
     {
         $query->where('participantable_id', $model->getKey())
             ->where('participantable_type', $model->getMorphClass());
@@ -267,7 +267,7 @@ class Participant extends Model
      *
      * @param  Model  $admin  The admin model removing the participant.
      */
-    public function removeByAdmin(Model|Authenticatable $admin): void
+    public function removeByAdmin(Model | Authenticatable $admin): void
     {
         // Check if a remove action already exists for this participant
         $exists = Action::where('actionable_id', $this->id)
@@ -330,7 +330,7 @@ class Participant extends Model
      * @param  \Illuminate\Database\Eloquent\Builder<static>  $query
      * @return \Illuminate\Database\Eloquent\Builder<static>
      */
-    public function scopeWithoutParticipantable($query, Model|Authenticatable $user): Builder
+    public function scopeWithoutParticipantable($query, Model | Authenticatable $user): Builder
     {
 
         return $query->where(function ($query) use ($user) {

@@ -6,8 +6,8 @@ if (defined('FILAMENT_WIRECHAT_CHANNELS_LOADED')) {
 }
 define('FILAMENT_WIRECHAT_CHANNELS_LOADED', true);
 
-use Adultdate\Wirechat\Helpers\MorphClassResolver;
 use AdultDate\FilamentWirechat\Models\Conversation;
+use Adultdate\Wirechat\Helpers\MorphClassResolver;
 use Filament\Facades\Filament;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Broadcast;
@@ -39,10 +39,12 @@ foreach ($panels as $panel) {
                 if ($testGuard === null) {
                     if (Auth::check()) {
                         $user = Auth::user();
+
                         break;
                     }
                 } elseif (Auth::guard($testGuard)->check()) {
                     $user = Auth::guard($testGuard)->user();
+
                     break;
                 }
             }
@@ -54,6 +56,7 @@ foreach ($panels as $panel) {
                 'guard' => $guard,
                 'conversationId' => $conversationId,
             ]);
+
             return false;
         }
 
@@ -63,11 +66,12 @@ foreach ($panels as $panel) {
             \Log::warning("Broadcast auth failed for channel {$panelId}.conversation - conversation not found", [
                 'conversationId' => $conversationId,
             ]);
+
             return false;
         }
 
         $belongsTo = $user->belongsToConversation($conversation);
-        
+
         if (! $belongsTo) {
             \Log::warning("Broadcast auth failed for channel {$panelId}.conversation - user does not belong to conversation", [
                 'user_id' => $user->id,
@@ -89,10 +93,12 @@ foreach ($panels as $panel) {
                 if ($testGuard === null) {
                     if (Auth::check()) {
                         $user = Auth::user();
+
                         break;
                     }
                 } elseif (Auth::guard($testGuard)->check()) {
                     $user = Auth::guard($testGuard)->user();
+
                     break;
                 }
             }
@@ -114,6 +120,7 @@ foreach ($panels as $panel) {
                 'encodedType' => $encodedType,
                 'id' => $id,
             ]);
+
             return false;
         }
     }, [

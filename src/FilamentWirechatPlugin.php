@@ -74,7 +74,7 @@ class FilamentWirechatPlugin implements Plugin
         } else {
             // Use auto-discovery if no filtering is configured
             $panel->discoverResources(
-                in: __DIR__.'/Filament/Resources',
+                in: __DIR__ . '/Filament/Resources',
                 for: 'AdultDate\\FilamentWirechat\\Filament\\Resources'
             );
         }
@@ -99,7 +99,7 @@ class FilamentWirechatPlugin implements Plugin
         }
 
         $panel->discoverWidgets(
-            in: __DIR__.'/Filament/Widgets',
+            in: __DIR__ . '/Filament/Widgets',
             for: 'AdultDate\\FilamentWirechat\\Filament\\Widgets'
         );
 
@@ -191,7 +191,6 @@ class FilamentWirechatPlugin implements Plugin
      * Exclude specific pages from being registered.
      *
      * @param  array<string>  $pages  Array of page class names to exclude
-     * @return static
      */
     public function excludePages(array $pages): static
     {
@@ -204,7 +203,6 @@ class FilamentWirechatPlugin implements Plugin
      * Only register specific pages (excludes all others).
      *
      * @param  array<string>  $pages  Array of page class names to include
-     * @return static
      */
     public function onlyPages(array $pages): static
     {
@@ -239,7 +237,6 @@ class FilamentWirechatPlugin implements Plugin
      * Exclude specific resources from being registered.
      *
      * @param  array<string>  $resources  Array of resource class names to exclude
-     * @return static
      */
     public function excludeResources(array $resources): static
     {
@@ -252,7 +249,6 @@ class FilamentWirechatPlugin implements Plugin
      * Only register specific resources (excludes all others).
      *
      * @param  array<string>  $resources  Array of resource class names to include
-     * @return static
      */
     public function onlyResources(array $resources): static
     {

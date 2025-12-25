@@ -41,12 +41,12 @@ class FilamentWirechatServiceProvider extends PackageServiceProvider
 
         // Publish migrations directly (since they're .php files, not .stub)
         $this->publishes([
-            __DIR__.'/../database/migrations' => database_path('migrations'),
+            __DIR__ . '/../database/migrations' => database_path('migrations'),
         ], 'filament-wirechat-migrations');
 
         // Publish assets
         $this->publishes([
-            __DIR__.'/../resources/dist' => public_path('vendor/filament-wirechat'),
+            __DIR__ . '/../resources/dist' => public_path('vendor/filament-wirechat'),
         ], 'filament-wirechat-assets');
     }
 
@@ -144,10 +144,11 @@ class FilamentWirechatServiceProvider extends PackageServiceProvider
         // Check if already defined to prevent double-loading
         if (defined('FILAMENT_WIRECHAT_CHANNELS_LOADED')) {
             $loaded = true;
+
             return;
         }
 
-        $channelsPath = __DIR__.'/../routes/channels.php';
+        $channelsPath = __DIR__ . '/../routes/channels.php';
         if (file_exists($channelsPath)) {
             require $channelsPath;
             $loaded = true;
@@ -282,7 +283,7 @@ class FilamentWirechatServiceProvider extends PackageServiceProvider
         }
 
         // Load standalone wirechat web routes if they exist
-        $standaloneWebRoutes = __DIR__.'/../routes/standalone-web.php';
+        $standaloneWebRoutes = __DIR__ . '/../routes/standalone-web.php';
         if (file_exists($standaloneWebRoutes)) {
             $this->loadRoutesFrom($standaloneWebRoutes);
         }
@@ -290,7 +291,7 @@ class FilamentWirechatServiceProvider extends PackageServiceProvider
         // Load standalone wirechat channel routes only if not already loaded via Filament channels
         // Check if Filament is available - if so, Filament channels handle it
         if (! class_exists(\Filament\Facades\Filament::class)) {
-            $standaloneChannelRoutes = __DIR__.'/../routes/standalone-channels.php';
+            $standaloneChannelRoutes = __DIR__ . '/../routes/standalone-channels.php';
             if (file_exists($standaloneChannelRoutes)) {
                 $this->loadRoutesFrom($standaloneChannelRoutes);
             }
@@ -315,7 +316,7 @@ class FilamentWirechatServiceProvider extends PackageServiceProvider
             return '<?php
                 $wirechatFacade = \Adultdate\Wirechat\Facades\Wirechat::class;
                 if (class_exists($wirechatFacade)) {
-                    $panelArg = '.$panel.';
+                    $panelArg = ' . $panel . ';
                     $currentPanel = $panelArg && $panelArg !== \'null\' && $panelArg !== null
                         ? \Adultdate\Wirechat\Facades\Wirechat::getPanel($panelArg)
                         : \Adultdate\Wirechat\Facades\Wirechat::currentPanel();
@@ -338,7 +339,7 @@ class FilamentWirechatServiceProvider extends PackageServiceProvider
             return '<?php
                 $wirechatFacade = \Adultdate\Wirechat\Facades\Wirechat::class;
                 if (class_exists($wirechatFacade)) {
-                    $panelArg = '.$panel.';
+                    $panelArg = ' . $panel . ';
                     $currentPanel = $panelArg && $panelArg !== \'null\' && $panelArg !== null
                         ? \Adultdate\Wirechat\Facades\Wirechat::getPanel($panelArg)
                         : \Adultdate\Wirechat\Facades\Wirechat::currentPanel();
@@ -361,13 +362,13 @@ class FilamentWirechatServiceProvider extends PackageServiceProvider
     protected function loadStandaloneWirechatViews(): void
     {
         // Load standalone wirechat views from filament-wirechat
-        $wirechatViewsPath = __DIR__.'/../resources/wirechat-views';
+        $wirechatViewsPath = __DIR__ . '/../resources/wirechat-views';
         if (is_dir($wirechatViewsPath)) {
             $this->loadViewsFrom($wirechatViewsPath, 'wirechat');
         }
 
         // Load standalone wirechat translations from filament-wirechat
-        $wirechatLangPath = __DIR__.'/../lang-standalone';
+        $wirechatLangPath = __DIR__ . '/../lang-standalone';
         if (is_dir($wirechatLangPath)) {
             $this->loadTranslationsFrom($wirechatLangPath, 'wirechat');
         }

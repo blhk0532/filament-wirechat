@@ -112,7 +112,7 @@ class Group extends Model
     /**
      * Check if group is owned by
      */
-    public function isOwnedBy(Model|Authenticatable $user): bool
+    public function isOwnedBy(Model | Authenticatable $user): bool
     {
 
         $conversation = $this->conversation;

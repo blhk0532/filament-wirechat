@@ -14,8 +14,11 @@ use Illuminate\Queue\SerializesModels;
 
 class BroadcastMessage implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
     use InteractsWithPanel;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     /**
      * Create a new job instance.

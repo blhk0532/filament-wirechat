@@ -19,9 +19,9 @@ class ConversationResource extends Resource
 {
     protected static ?string $model = Conversation::class;
 
-    protected static \UnitEnum|string|null $navigationGroup = 'Chats';
+    protected static \UnitEnum | string | null $navigationGroup = 'Chats';
 
-    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-chat-bubble-left-right';
+    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-chat-bubble-left-right';
 
     protected static ?string $navigationLabel = 'Conversations';
 

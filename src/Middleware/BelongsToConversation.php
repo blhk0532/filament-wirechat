@@ -24,11 +24,11 @@ class BelongsToConversation
         // If it's a string, resolve it to a Conversation model
         if (is_string($conversationParam) || is_numeric($conversationParam)) {
             $conversation = Conversation::find($conversationParam);
-            
+
             if (! $conversation) {
                 abort(404, 'Conversation not found');
             }
-            
+
             // Replace the route parameter with the resolved model for downstream use
             $request->route()->setParameter('conversation', $conversation);
         } else {

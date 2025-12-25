@@ -9,7 +9,7 @@ use Wirechat\Wirechat\Panel;
 
 trait HasPanel
 {
-    public Panel|string|null $panel = null;
+    public Panel | string | null $panel = null;
 
     /**
      * Resolve and assign the panel during mount.
@@ -25,7 +25,7 @@ trait HasPanel
      *
      * @throws NoPanelProvidedException
      */
-    public function initializePanel(Panel|string|null $panelId = null): void
+    public function initializePanel(Panel | string | null $panelId = null): void
     {
         if ($panelId instanceof Panel) {
             $this->panel = $panelId->getId();

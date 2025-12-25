@@ -9,9 +9,9 @@ trait HasHeart
     /**
      * Enable or disable option
      */
-    protected bool|Closure $hasHeart = false;
+    protected bool | Closure $hasHeart = false;
 
-    public function heart(bool|Closure $condition = true): static
+    public function heart(bool | Closure $condition = true): static
     {
         $this->hasHeart = $condition;
 

@@ -64,10 +64,10 @@ class Chat extends Component
 
     public array $files = [];
 
-    public Participant|Model|null $authParticipant = null;
+    public Participant | Model | null $authParticipant = null;
 
     // #[Locked]
-    public Participant|Model|null $receiverParticipant = null;
+    public Participant | Model | null $receiverParticipant = null;
 
     // Theme
     public $replyMessage = null;
@@ -129,7 +129,7 @@ class Chat extends Component
 
             // Dispatch refresh event
             $this->dispatch('refresh')->to(Chats::class);
-            
+
             // Dispatch event to update unread count badge
             $this->dispatch('refresh-unread-count');
         }
@@ -183,6 +183,7 @@ class Chat extends Component
         // descrypt
 
         $messageId = null;
+
         try {
             $messageId = decrypt($id);
 
@@ -330,12 +331,12 @@ class Chat extends Component
     {
         $perMinute = 60;
 
-        if (RateLimiter::tooManyAttempts('send-message:'.auth()->id(), $perMinute)) {
+        if (RateLimiter::tooManyAttempts('send-message:' . auth()->id(), $perMinute)) {
 
             return abort(429, __('wirechat::chat.messages.rate_limit'));
         }
 
-        RateLimiter::increment('send-message:'.auth()->id());
+        RateLimiter::increment('send-message:' . auth()->id());
     }
 
     /**
@@ -509,6 +510,7 @@ class Chat extends Component
     {
         // descrypt
         $messageId = null;
+
         try {
             $messageId = decrypt($id);
 
@@ -550,6 +552,7 @@ class Chat extends Component
     {
         // descrypt
         $messageId = null;
+
         try {
             $messageId = decrypt($id);
 
