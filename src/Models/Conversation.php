@@ -2,6 +2,13 @@
 
 namespace AdultDate\FilamentWirechat\Models;
 
+use AdultDate\FilamentWirechat\Enums\Actions;
+use AdultDate\FilamentWirechat\Enums\ConversationType;
+use AdultDate\FilamentWirechat\Enums\ParticipantRole;
+use AdultDate\FilamentWirechat\Models\Concerns\HasDynamicIds;
+use AdultDate\FilamentWirechat\Models\Scopes\WithoutRemovedMessages;
+use Adultdate\Wirechat\Facades\Wirechat;
+use Adultdate\Wirechat\Traits\Actionable;
 use Carbon\Carbon;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Builder;
@@ -11,13 +18,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use AdultDate\FilamentWirechat\Enums\Actions;
-use AdultDate\FilamentWirechat\Enums\ConversationType;
-use AdultDate\FilamentWirechat\Enums\ParticipantRole;
-use AdultDate\FilamentWirechat\Facades\Wirechat;
-use AdultDate\FilamentWirechat\Models\Concerns\HasDynamicIds;
-use AdultDate\FilamentWirechat\Models\Scopes\WithoutRemovedMessages;
-use AdultDate\FilamentWirechat\Traits\Actionable;
 
 /**
  * @property int $id
@@ -56,6 +56,13 @@ class Conversation extends Model
     use HasDynamicIds;
     use HasFactory;
 
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table;
+
     protected $fillable = [
         'disappearing_started_at',
         'disappearing_duration',
@@ -69,9 +76,37 @@ class Conversation extends Model
 
     public function __construct(array $attributes = [])
     {
-        $this->table = Wirechat::formatTableName('conversations');
-
         parent::__construct($attributes);
+
+        // Set table name after parent constructor
+        $this->table = Wirechat::formatTableName('conversations');
+    }
+
+    /**
+     * Get the table associated with the model.
+     */
+    public function getTable(): string
+    {
+        if (! $this->table) {
+            $this->table = Wirechat::formatTableName('conversations');
+        }
+
+        return $this->table;
+    }
+
+    /**
+     * Get a new query builder instance for the model.
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function newQuery()
+    {
+        // Ensure table is set before creating query builder
+        if (! $this->table) {
+            $this->table = Wirechat::formatTableName('conversations');
+        }
+
+        return parent::newQuery();
     }
 
     protected static function boot()
@@ -109,8 +144,7 @@ class Conversation extends Model
      */
     protected static function newFactory()
     {
-        // TODO: Create factory
-        return null;
+        return \AdultDate\FilamentWirechat\Database\Factories\ConversationFactory::new();
     }
 
     /**

@@ -31,7 +31,7 @@
             if (event.detail.conversation== this.conversationID) {
                 this.showUnreadStatus= false;
             }
-            //update this so that the the selected conversation highlighter can be updated
+            //update this so that the the selected conversation highlighter can be updated!!
             $wire.selectedConversationId= event.detail.conversation;
         },
         handleChatClosed(event) {
@@ -54,41 +54,43 @@
         <a @if ($widget === true || $widget === 'true' || $widget === 1) tabindex="0"
         role="button"
         dusk="openChatWidgetButton"
+        x-data="{ clicked: false }"
+        x-on:chat-closed.window="
+            if ($event.detail.conversation == @js($conversation->id)) {
+                clicked = false;
+                $el.style.pointerEvents = '';
+                $el.style.opacity = '';
+            }
+        "
         @click="
-            console.log('[CHAT CLICK] Widget mode: Opening chat widget', { conversation: @js($conversation->id), widget: @js($widget) });
-            $dispatch('open-chat',{conversation:@js($conversation->id)});
+            if (!clicked) {
+                clicked = true;
+                console.log('[CHAT CLICK] Widget mode: Opening chat widget', { conversation: @js($conversation->id), widget: @js($widget) });
+                $dispatch('open-chat',{conversation:@js($conversation->id)});
+                $el.style.pointerEvents = 'none';
+                $el.style.opacity = '0.6';
+            }
         "
         @keydown.enter="
-            console.log('[CHAT CLICK] Widget mode: Opening chat widget (keyboard)', { conversation: @js($conversation->id) });
-            $dispatch('open-chat',{conversation:@js($conversation->id)});
+            if (!clicked) {
+                clicked = true;
+                console.log('[CHAT CLICK] Widget mode: Opening chat widget (keyboard)', { conversation: @js($conversation->id) });
+                $dispatch('open-chat',{conversation:@js($conversation->id)});
+                $el.style.pointerEvents = 'none';
+                $el.style.opacity = '0.6';
+            }
         "
         @else
-        href="{{ $this->chatRoute($conversation, true) }}"
-        @click.prevent="
-            console.log('[CHAT CLICK] ========== CLICK DETECTED ==========');
-            console.log('[CHAT CLICK] Non-widget mode: Click detected', {
-                conversationId: @js($conversation->id),
-                href: '{{ $this->chatRoute($conversation, true) }}',
-                widget: @js($widget),
-                widgetType: typeof @js($widget),
-                widgetValue: @js($widget),
-                eventType: $event.type
-            });
-            console.log('[CHAT CLICK] Attempting to close modal...');
+        wire:navigate href="{{ $this->chatRoute($conversation, true) }}"
+        @click="
+            // Close the sidebar modal if it's open (for Filament admin panel)
             try {
                 $dispatch('close-modal', { id: 'chats-sidebar' });
-                console.log('[CHAT CLICK] Close-modal event dispatched successfully');
             } catch (e) {
-                console.error('[CHAT CLICK] Error dispatching close-modal:', e);
+                // Ignore errors if modal is not present
             }
-            console.log('[CHAT CLICK] Navigating to:', '{{ $this->chatRoute($conversation, true) }}');
-            // Use setTimeout to ensure modal closes before navigation
-            setTimeout(() => {
-                window.location.href = '{{ $this->chatRoute($conversation, true) }}';
-            }, 100);
-            console.log('[CHAT CLICK] ===========================================');
         "
-        onclick="console.log('[CHAT CLICK] Native onclick fired, widget:', @js($widget));" @endif
+        @endif
             @style(['border-color:var(--wc-brand-primary)' => $selectedConversationId == $conversation?->id])
             class="py-3 flex gap-4  dark:hover:bg-[var(--wc-dark-secondary)]  hover:bg-[var(--wc-light-secondary)]  rounded-xs transition-colors duration-150  relative w-full cursor-pointer px-2"
             :class="$wire.selectedConversationId == conversationID &&

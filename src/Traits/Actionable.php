@@ -1,9 +1,9 @@
 <?php
 
-namespace AdultDate\FilamentWirechat\Traits;
+namespace Adultdate\Wirechat\Traits;
 
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use AdultDate\FilamentWirechat\Models\Action;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 /**
  * Trait Actionable

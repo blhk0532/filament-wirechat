@@ -122,7 +122,10 @@
                             let focusable = this.$refs[id]?.querySelector('[autofocus]');
                             if (focusable) {
                                 setTimeout(() => {
-                                    focusable.focus();
+                                    // Only focus if no element is currently focused
+                                    if (!document.activeElement || document.activeElement === document.body) {
+                                        focusable.focus();
+                                    }
                                 }, focusableTimeout);
                             }
                         });
@@ -176,17 +179,23 @@
 
     <div
     x-data="{
-        selectedConversationId:null,
+        selectedConversationId: null,
+        isInModal: false,
         get chatIsOpen(){
-
-            return $wire.selectedConversationId !==null;
-
+            return $wire.selectedConversationId !== null;
+        },
+        init() {
+            this.isInModal = this.$el.closest('.chats-sidebar-modal-widget') !== null;
         }
     }"
-
-     class ='w-full h-full bg-[var(--wc-light-primary)] dark:bg-[var(--wc-dark-primary)] border border-[var(--wc-light-secondary)] dark:border-[var(--wc-dark-secondary)] flex overflow-hidden rounded-lg'>
-      <div :class="chatIsOpen && 'hidden md:grid'" class="relative  w-full h-full sm:border-r border-[var(--wc-light-border)] dark:border-[var(--wc-dark-border)]    md:w-[360px] lg:w-[400px] xl:w-[450px] shrink-0 overflow-y-auto  ">
-          <livewire.filament-wirechat.chats :widget="true" panel="{{ $this->panelId() }}" />
+     class ='w-full h-full bg-[var(--wc-light-primary)] dark:bg-[var(--wc-dark-primary)] border border-[var(--wc-light-secondary)] dark:border-[var(--wc-dark-secondary)] flex overflow-hidden rounded-lg wirechat-widget-container'
+     >
+      <div 
+          :class="isInModal ? (chatIsOpen ? 'hidden' : 'flex') : (chatIsOpen ? 'hidden md:flex' : 'flex')" 
+          class="chats-list-container relative w-full h-full border-r border-[var(--wc-light-border)] dark:border-[var(--wc-dark-border)] md:w-[360px] lg:w-[400px] xl:w-[450px] shrink-0 overflow-y-auto flex-col"
+          style="min-width: 0;"
+      >
+          <livewire:filament-wirechat.chats widget="true" :panel="$this->panelId()" />
       </div>
       <main
            x-data="ChatWidget()"
@@ -195,22 +204,32 @@
            x-on:keydown.escape.stop.window="closeChatWidgetOnEscape({ modalType: 'ChatWidget', event: $event });"
            aria-modal="true"
            tabindex="0"
-           class="w-full h-full min-h-full grid relative grow  focus:outline-hidden focus:border-none"
-           :class="!chatIsOpen && 'hidden md:grid'"
-           style="contain:content;">
+           class="chat-window-container w-full h-full min-h-full grid relative grow focus:outline-hidden focus:border-none"
+           x-bind:class="$root.isInModal ? ($root.chatIsOpen ? 'grid' : 'hidden') : (!$root.chatIsOpen ? 'hidden md:grid' : 'grid')"
+           style="contain:content; min-width: 0;"
+      >
             <div
                 x-cloak
-                x-show="show && showActiveComponent" x-transition:enter="ease-out duration-100"
-                x-transition:enter-start="opacity-0 -translate-x-full" x-transition:enter-end="opacity-100 translate-x-0"
-                x-transition:leave="ease-in duration-100 " x-transition:leave-start="opacity-100 translate-x-0"
+                x-show="show && showActiveComponent" 
+                x-transition:enter="ease-out duration-100"
+                x-transition:enter-start="opacity-0 -translate-x-full" 
+                x-transition:enter-end="opacity-100 translate-x-0"
+                x-transition:leave="ease-in duration-100" 
+                x-transition:leave-start="opacity-100 translate-x-0"
                 x-transition:leave-end="opacity-0 -translate-x-full"
-                class="fixed inset-0" id="chatwidget-container"
-                aria-modal="true">
+                class="absolute inset-0 w-full h-full" 
+                id="chatwidget-container"
+                aria-modal="true"
+                style="min-width: 0;"
+            >
                 @forelse($widgetComponents as $id => $component)
-                    <div x-show.immediate="activeWidgetComponent == @js($id)"
-                         x-ref="@js($id)"
-                         wire:key="key-{{$id }}"
-                         class="h-full">
+                    <div 
+                        x-show.immediate="activeWidgetComponent == @js($id)"
+                        x-ref="@js($id)"
+                        wire:key="key-{{$id }}"
+                        class="h-full w-full"
+                        style="min-width: 0;"
+                    >
 
                     @livewire($component['name'], ['conversation'=> $component['conversation'] ,'widget'=>true,'panel'=>$this->panelId()], key($id))
                     </div>
@@ -218,10 +237,12 @@
                 @endforelse
             </div>
 
-            <div  x-show="!show && !chatIsOpen " class="m-auto  justify-center flex gap-3 flex-col  items-center ">
-
+            <div  
+                x-show="!show && !$root.chatIsOpen" 
+                x-bind:class="$root.chatIsOpen && 'hidden'"
+                class="m-auto justify-center flex gap-3 flex-col items-center"
+            >
                 <h4 class="font-medium p-2 px-3 rounded-full font-semibold bg-[var(--wc-light-secondary)] dark:bg-[var(--wc-dark-secondary)] dark:text-white dark:font-normal">@lang('filament-wirechat::widgets.wirechat.messages.welcome')</h4>
-
             </div>
 
 

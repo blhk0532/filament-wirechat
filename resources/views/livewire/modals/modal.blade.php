@@ -136,7 +136,10 @@
                         let focusable = this.$refs[id]?.querySelector('[autofocus]');
                         if (focusable) {
                             setTimeout(() => {
-                                focusable.focus();
+                                // Only focus if no element is currently focused
+                                if (!document.activeElement || document.activeElement === document.body) {
+                                    focusable.focus();
+                                }
                             }, focusableTimeout);
                         }
                     });
@@ -194,8 +197,7 @@
                 <div class="absolute inset-0 bg-[var(--wc-light-primary)] dark:bg-[var(--wc-dark-primary)] opacity-75"></div>
             </div>
 
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen " aria-hidden="true">&#8203;</span>
-
+    
             <div x-show="show && showActiveModalComponent"
                 x-transition:enter="ease-out duration-300"
                 x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
@@ -203,7 +205,7 @@
                 x-transition:leave="ease-in duration-200"
                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
                 x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-
+                style="position: absolute; top: 10%;"
                 class="inline-block  align-bottom wc-scrollbar-theme rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle w-full sm:max-w-lg bg-[var(--wc-light-primary)] dark:bg-[var(--wc-dark-primary)] dark:text-white"
                 id="chat-dialog-container" x-trap.noscroll.inert="show && showActiveModalComponent" aria-modal="true">
                 @forelse($components as $id => $component)

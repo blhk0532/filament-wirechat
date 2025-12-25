@@ -1,15 +1,15 @@
 <?php
 
-namespace AdultDate\FilamentWirechat\Livewire\Widgets;
+namespace Adultdate\Wirechat\Livewire\Widgets;
 
+use AdultDate\FilamentWirechat\Models\Conversation;
+use Adultdate\Wirechat\Livewire\Concerns\HasPanel;
 use Illuminate\Contracts\Routing\UrlRoutable;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Reflector;
 use Livewire\Component;
 use Livewire\Mechanisms\ComponentRegistry;
-use AdultDate\FilamentWirechat\Livewire\Concerns\HasPanel;
-use AdultDate\FilamentWirechat\Models\Conversation;
 
 class Wirechat extends Component
 {
@@ -40,7 +40,7 @@ class Wirechat extends Component
 
     public function openChatWidget($conversation, $arguments = [], $modalAttributes = []): void
     {
-        $component = 'filament-wirechat.chat';
+        $component = 'wirechat.chat';
         // $componentClass = app(ComponentRegistry::class)->getClass($component);
 
         // Generate a unique ID using the conversationId and arguments
@@ -152,7 +152,6 @@ class Wirechat extends Component
 
     public function render()
     {
-
-        return view('filament-wirechat::livewire.widgets.wire-chat');
+        return view('wirechat::livewire.widgets.wire-chat');
     }
 }

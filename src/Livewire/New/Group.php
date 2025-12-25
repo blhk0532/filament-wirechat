@@ -1,13 +1,13 @@
 <?php
 
-namespace AdultDate\FilamentWirechat\Livewire\New;
+namespace Adultdate\Wirechat\Livewire\New;
 
+use Adultdate\Wirechat\Livewire\Concerns\HasPanel;
+use Adultdate\Wirechat\Livewire\Concerns\ModalComponent;
+use Adultdate\Wirechat\Livewire\Concerns\Widget;
+use Adultdate\Wirechat\Livewire\Widgets\Wirechat as WidgetsWirechat;
 use Livewire\Attributes\Validate;
 use Livewire\WithFileUploads;
-use AdultDate\FilamentWirechat\Livewire\Concerns\HasPanel;
-use AdultDate\FilamentWirechat\Livewire\Concerns\ModalComponent;
-use AdultDate\FilamentWirechat\Livewire\Concerns\Widget;
-use AdultDate\FilamentWirechat\Livewire\Widgets\Wirechat as WidgetsWirechat;
 
 class Group extends ModalComponent
 {
@@ -37,12 +37,12 @@ class Group extends ModalComponent
     public function messages(): array
     {
         return [
-            'name.required' => __('filament-wirechat::validation.required', ['attribute' => __('filament-wirechat::chat.group.info.inputs.name.label')]),
-            'name.max' => __('filament-wirechat::validation.max.string', ['attribute' => __('filament-wirechat::chat.group.info.inputs.name.label')]),
-            'description.max' => __('filament-wirechat::validation.max.string', ['attribute' => __('filament-wirechat::chat.group.info.inputs.description.label')]),
-            'photo.max' => __('filament-wirechat::validation.max.file', ['attribute' => __('filament-wirechat::chat.group.info.inputs.photo.label')]),
-            'photo.image' => __('filament-wirechat::validation.image', ['attribute' => __('filament-wirechat::chat.group.info.inputs.photo.label')]),
-            'photo.mimes' => __('filament-wirechat::validation.mimes', ['attribute' => __('filament-wirechat::chat.group.info.inputs.photo.label')]),
+            'name.required' => __('wirechat::validation.required', ['attribute' => __('wirechat::chat.group.info.inputs.name.label')]),
+            'name.max' => __('wirechat::validation.max.string', ['attribute' => __('wirechat::chat.group.info.inputs.name.label')]),
+            'description.max' => __('wirechat::validation.max.string', ['attribute' => __('wirechat::chat.group.info.inputs.description.label')]),
+            'photo.max' => __('wirechat::validation.max.file', ['attribute' => __('wirechat::chat.group.info.inputs.photo.label')]),
+            'photo.image' => __('wirechat::validation.image', ['attribute' => __('wirechat::chat.group.info.inputs.photo.label')]),
+            'photo.mimes' => __('wirechat::validation.mimes', ['attribute' => __('wirechat::chat.group.info.inputs.photo.label')]),
         ];
     }
 
@@ -79,7 +79,7 @@ class Group extends ModalComponent
             $this->users = [];
         } else {
 
-            $this->users = $this->searchUsers($this->search)->resolve();
+            $this->users = $this->panel()->searchUsers($this->search)->resolve();
 
         }
     }
@@ -126,7 +126,7 @@ class Group extends ModalComponent
             } else {
 
                 // validte members count
-                if (count($this->selectedMembers) >= $this->getMaxGroupMembers()) {
+                if (count($this->selectedMembers) >= $this->panel()->getMaxGroupMembers()) {
                     return $this->dispatch('show-member-limit-error');
                 }
 
@@ -175,7 +175,7 @@ class Group extends ModalComponent
 
         // redirect to conversation
         $this->handleComponentTermination(
-            redirectRoute: $this->chatRoute($conversation->id),
+            redirectRoute: $this->panel()->chatRoute($conversation->id),
             events: [
                 WidgetsWirechat::class => ['open-chat',  ['conversation' => $conversation->id]],
             ]
@@ -195,6 +195,6 @@ class Group extends ModalComponent
     public function render()
     {
 
-        return view('filament-wirechat::livewire.new.group', ['maxGroupMembers' => $this->getMaxGroupMembers()]);
+        return view('wirechat::livewire.new.group', ['maxGroupMembers' => $this->panel()->getMaxGroupMembers()]);
     }
 }

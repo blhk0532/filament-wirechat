@@ -1,12 +1,11 @@
 <?php
 
-namespace AdultDate\FilamentWirechat\Jobs;
+namespace Adultdate\Wirechat\Jobs;
 
-use AdultDate\FilamentWirechat\Events\MessageCreated;
-use AdultDate\FilamentWirechat\Facades\Wirechat;
 use AdultDate\FilamentWirechat\Models\Message;
 use AdultDate\FilamentWirechat\Models\Participant;
-use AdultDate\FilamentWirechat\Traits\InteractsWithPanel;
+use Adultdate\Wirechat\Events\MessageCreated;
+use Adultdate\Wirechat\Traits\InteractsWithPanel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -31,8 +30,7 @@ class BroadcastMessage implements ShouldQueue
     {
         $this->resolvePanel($panel);
         //
-        // Use the messages queue from config
-        $this->onQueue(Wirechat::messagesQueue());
+        $this->onQueue($this->getPanel()->getMessagesQueue());
         $this->auth = auth()->user();
 
         // Get table
@@ -46,6 +44,6 @@ class BroadcastMessage implements ShouldQueue
     public function handle(): void
     {
         // Broadcast to the conversation channel for all participants
-        event(new MessageCreated($this->message, $this->panel));
+        event(new MessageCreated($this->message, $this->getPanel()->getId()));
     }
 }

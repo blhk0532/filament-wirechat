@@ -1,12 +1,12 @@
 <?php
 
-namespace AdultDate\FilamentWirechat\Http\Resources;
+namespace Adultdate\Wirechat\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @mixin \AdultDate\FilamentWirechat\Models\Group
+ * @mixin \Adultdate\Wirechat\Models\Group
  */
 class GroupResource extends JsonResource
 {

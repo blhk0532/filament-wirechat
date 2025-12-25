@@ -1,9 +1,10 @@
 <?php
 
-namespace AdultDate\FilamentWirechat\Traits;
+namespace Adultdate\Wirechat\Traits;
 
-use AdultDate\FilamentWirechat\Exceptions\NoPanelProvidedException;
-use Filament\Facades\Filament;
+use Adultdate\Wirechat\Exceptions\NoPanelProvidedException;
+use Adultdate\Wirechat\Facades\Wirechat;
+use Adultdate\Wirechat\Panel;
 
 trait InteractsWithPanel
 {
@@ -18,11 +19,9 @@ trait InteractsWithPanel
     public function resolvePanel(?string $panel = null): void
     {
         if (is_string($panel) && filled($panel)) {
-            $this->panel = $panel;
+            $this->panel = Wirechat::getPanel($panel)->getId();
         } else {
-            // Get the current Filament panel ID
-            $currentPanel = Filament::getCurrentPanel();
-            $this->panel = $currentPanel ? $currentPanel->getId() : 'admin';
+            $this->panel = Wirechat::getDefaultPanel()->getId();
         }
 
         if (! $this->panel) {
@@ -31,10 +30,12 @@ trait InteractsWithPanel
     }
 
     /**
-     * Get the resolved Filament panel instance.
+     * Get the resolved panel instance.
+     *
+     * @return \Wirechat\Wirechat\Panel|\Filament\Panel|null
      */
-    public function getPanel(): ?\Filament\Panel
+    public function getPanel()
     {
-        return Filament::getPanel($this->panel);
+        return Wirechat::getPanel($this->panel);
     }
 }

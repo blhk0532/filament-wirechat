@@ -7,7 +7,7 @@
 <header
     class="w-full   sticky inset-x-0 flex pb-[5px] pt-[7px] top-0 z-10 bg-[var(--wc-light-primary)] dark:bg-[var(--wc-dark-secondary)]  border-[var(--wc-light-border)] dark:border-[var(--wc-dark-secondary)]   border-b">
 
-    <div class="  flex  w-full items-center   px-2 py-2   lg:px-4 gap-2 md:gap-5 ">
+    <div class="  flex  w-full items-center   px-2 py-3   lg:px-4 gap-2 md:gap-5 ">
 
         {{-- Return --}}
         <a @if ($this->isWidget()) @click="$dispatch('close-chat',{conversation: {{json_encode($conversation->id)}} })"

@@ -1,8 +1,8 @@
 <?php
 
-namespace AdultDate\FilamentWirechat\Contracts;
+namespace Adultdate\Wirechat\Contracts;
 
-use Filament\Panel;
+use Wirechat\Wirechat\Panel;
 
 interface WirechatUser
 {

@@ -50,7 +50,8 @@
     "autoload": {
         "psr-4": {
             "AdultDate\\FilamentWirechat\\": "src/",
-            "AdultDate\\FilamentWirechat\\Database\\Factories\\": "database/factories/"
+            "Wirechat\\Wirechat\\": "src/",
+            "Adultdate\\Wirechat\\": "src/"
         },
         "files": [
             "src/Support/helpers.php"
@@ -62,7 +63,9 @@
         }
     },
     "scripts": {
-        "post-autoload-dump": "@php ./vendor/bin/testbench package:discover --ansi",
+        "post-autoload-dump": [
+            "@php -r \"file_exists('vendor/bin/testbench') && @php vendor/bin/testbench package:discover --ansi\""
+        ],
         "analyse": "phpstan analyse",
         "lint": "pint",
         "refactor": "rector",
@@ -76,7 +79,7 @@
                 "AdultDate\\FilamentWirechat\\FilamentWirechatServiceProvider"
             ],
             "aliases": {
-                "Wirechat": "AdultDate\\FilamentWirechat\\Facades\\Wirechat"
+                "Wirechat": "Adultdate\\Wirechat\\Facades\\Wirechat"
             }
         }
     },

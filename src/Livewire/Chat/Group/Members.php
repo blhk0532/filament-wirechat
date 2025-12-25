@@ -1,17 +1,17 @@
 <?php
 
-namespace AdultDate\FilamentWirechat\Livewire\Chat\Group;
+namespace Adultdate\Wirechat\Livewire\Chat\Group;
 
 use AdultDate\FilamentWirechat\Enums\Actions;
 use AdultDate\FilamentWirechat\Enums\ParticipantRole;
 // use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
-use AdultDate\FilamentWirechat\Livewire\Concerns\HasPanel;
-use AdultDate\FilamentWirechat\Livewire\Concerns\ModalComponent;
-use AdultDate\FilamentWirechat\Livewire\Concerns\Widget;
-use AdultDate\FilamentWirechat\Livewire\Widgets\Wirechat as WidgetsWirechat;
 use AdultDate\FilamentWirechat\Models\Action;
 use AdultDate\FilamentWirechat\Models\Conversation;
 use AdultDate\FilamentWirechat\Models\Participant;
+use Adultdate\Wirechat\Livewire\Concerns\HasPanel;
+use Adultdate\Wirechat\Livewire\Concerns\ModalComponent;
+use Adultdate\Wirechat\Livewire\Concerns\Widget;
+use Adultdate\Wirechat\Livewire\Widgets\Wirechat as WidgetsWirechat;
 use Illuminate\Support\Facades\Schema;
 use Livewire\Attributes\Locked;
 use Livewire\WithFileUploads;
@@ -84,7 +84,7 @@ class Members extends ModalComponent
         $conversation = auth()->user()->createConversationWith($participant->participantable);
 
         $this->handleComponentTermination(
-            redirectRoute: $this->chatRoute($conversation->id),
+            redirectRoute: $this->panel()->chatRoute($conversation->id),
             events: [
                 WidgetsWirechat::class => ['open-chat',  ['conversation' => $conversation->id]],
                 'closeWirechatModal',
@@ -146,8 +146,7 @@ class Members extends ModalComponent
     protected function loadParticipants(): void
     {
 
-        // Default searchable fields for user models (name and email are most common)
-        $searchableFields = ['name', 'email'];
+        $searchableFields = $this->panel()->getSearchableAttributes();
         $columnCache = []; // Initialize cache for column checks
         // Check if $this->participants is initialized
         $this->participants = $this->participants ?? collect();
@@ -226,7 +225,7 @@ class Members extends ModalComponent
         // subtract one from total members and update chat list
         $this->totalMembersCount = $this->totalMembersCount - 1;
 
-        $this->dispatch('participantsCountUpdated', $this->totalMembersCount)->to(\AdultDate\FilamentWirechat\Livewire\Chat\Group\Info::class);
+        $this->dispatch('participantsCountUpdated', $this->totalMembersCount)->to(\Adultdate\Wirechat\Livewire\Chat\Group\Info::class);
         //  $this->dispatch('refresh')->self();
 
     }
@@ -268,7 +267,7 @@ class Members extends ModalComponent
         //
 
         // Pass data to the view
-        return view('filament-wirechat::livewire.chat.group.members', [
+        return view('wirechat::livewire.chat.group.members', [
             'participant' => $this->conversation->participant(auth()->user()),
 
         ]);

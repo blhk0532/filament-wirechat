@@ -2,9 +2,9 @@
 
 namespace AdultDate\FilamentWirechat\Models\Concerns;
 
+use Adultdate\Wirechat\Facades\Wirechat;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Str;
-use AdultDate\FilamentWirechat\Facades\Wirechat;
 
 trait HasDynamicIds
 {

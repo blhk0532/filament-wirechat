@@ -2,12 +2,12 @@
 
 namespace AdultDate\FilamentWirechat\Models\Scopes;
 
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Scope;
 use AdultDate\FilamentWirechat\Enums\Actions;
 use AdultDate\FilamentWirechat\Models\Message;
 use AdultDate\FilamentWirechat\Models\Participant;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Scope;
 
 class WithoutRemovedMessages implements Scope
 {

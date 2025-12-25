@@ -1,15 +1,15 @@
 <?php
 
-namespace AdultDate\FilamentWirechat\Notifications;
+namespace Adultdate\Wirechat\Notifications;
 
+use AdultDate\FilamentWirechat\Models\Message;
+use Adultdate\Wirechat\Facades\Wirechat;
 use Carbon\Carbon;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Notification;
-use AdultDate\FilamentWirechat\Facades\Wirechat;
-use AdultDate\FilamentWirechat\Models\Message;
 
 class NewMessageNotification extends Notification implements ShouldBroadcastNow
 {
@@ -38,8 +38,14 @@ class NewMessageNotification extends Notification implements ShouldBroadcastNow
      */
     public function via(object $notifiable): array
     {
-        return ['broadcast'];
+        $channels = ['broadcast'];
 
+        // Add database channel if enabled in config
+        if (config('filament-wirechat.notifications.database', false)) {
+            $channels[] = 'database';
+        }
+
+        return $channels;
     }
 
     /**
@@ -72,5 +78,20 @@ class NewMessageNotification extends Notification implements ShouldBroadcastNow
             'message_id' => $this->message->id,
             'conversation_id' => $this->message->conversation_id,
         ]);
+    }
+
+    /**
+     * Get the array representation of the notification for database storage.
+     *
+     * @return array<string, mixed>
+     */
+    public function toDatabase(object $notifiable): array
+    {
+        return [
+            'message_id' => $this->message->id,
+            'conversation_id' => $this->message->conversation_id,
+            'body' => $this->message->body,
+            'type' => $this->message->type->value ?? null,
+        ];
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace AdultDate\FilamentWirechat\Helpers;
+namespace Adultdate\Wirechat\Helpers;
 
 use Carbon\Carbon;
 

@@ -1,11 +1,11 @@
 <?php
 
+use Adultdate\Wirechat\Facades\Wirechat;
+use AdultDate\FilamentWirechat\Models\Conversation;
+use AdultDate\FilamentWirechat\Models\Group;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use AdultDate\FilamentWirechat\Facades\Wirechat;
-use AdultDate\FilamentWirechat\Models\Conversation;
-use AdultDate\FilamentWirechat\Models\Group;
 
 return new class extends Migration
 {

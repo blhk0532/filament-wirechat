@@ -133,7 +133,10 @@
                             let focusable = this.$refs[id]?.querySelector('[autofocus]');
                             if (focusable) {
                                 setTimeout(() => {
-                                    focusable.focus();
+                                    // Only focus if no element is currently focused
+                                    if (!document.activeElement || document.activeElement === document.body) {
+                                        focusable.focus();
+                                    }
                                 }, focusableTimeout);
                             }
                         });

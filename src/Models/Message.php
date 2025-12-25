@@ -2,6 +2,12 @@
 
 namespace AdultDate\FilamentWirechat\Models;
 
+use AdultDate\FilamentWirechat\Enums\Actions;
+use AdultDate\FilamentWirechat\Enums\MessageType;
+use AdultDate\FilamentWirechat\Models\Scopes\WithoutRemovedMessages;
+use Adultdate\Wirechat\Facades\Wirechat;
+use Adultdate\Wirechat\Helpers\Helper;
+use Adultdate\Wirechat\Traits\Actionable;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,12 +17,6 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
-use AdultDate\FilamentWirechat\Enums\Actions;
-use AdultDate\FilamentWirechat\Enums\MessageType;
-use AdultDate\FilamentWirechat\Facades\Wirechat;
-use AdultDate\FilamentWirechat\Helpers\Helper;
-use AdultDate\FilamentWirechat\Models\Scopes\WithoutRemovedMessages;
-use AdultDate\FilamentWirechat\Traits\Actionable;
 
 /**
  * @property int $id
@@ -77,6 +77,13 @@ class Message extends Model
         'kept_at',
     ];
 
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table;
+
     protected $casts = [
         'type' => MessageType::class,
         'kept_at' => 'datetime',
@@ -87,6 +94,33 @@ class Message extends Model
         $this->table = Wirechat::formatTableName('messages');
 
         parent::__construct($attributes);
+    }
+
+    /**
+     * Get the table associated with the model.
+     */
+    public function getTable(): string
+    {
+        if (! $this->table) {
+            $this->table = Wirechat::formatTableName('messages');
+        }
+
+        return $this->table;
+    }
+
+    /**
+     * Get a new query builder instance for the model.
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function newQuery()
+    {
+        // Ensure table is set before creating query builder
+        if (! $this->table) {
+            $this->table = Wirechat::formatTableName('messages');
+        }
+
+        return parent::newQuery();
     }
 
     /* relationship */
@@ -103,14 +137,59 @@ class Message extends Model
     }
 
     /**
+     * Relationship to the Participant model.
+     *
+     * For FilamentWirechat, messages use sendable (polymorphic to User),
+     * but we need to find the participant that corresponds to the sendable
+     * in this conversation.
+     *
+     * Note: This relationship uses a simple belongsTo on conversation_id.
+     * The actual participant matching is handled by the accessor below
+     * to support both single access and eager loading.
+     */
+    public function participant(): BelongsTo
+    {
+        // Return a simple relationship - the accessor will handle the actual matching
+        return $this->belongsTo(Participant::class, 'conversation_id', 'conversation_id');
+    }
+
+    /**
+     * Get the participant for this message.
+     * This accessor ensures the participant is loaded correctly by matching
+     * the message's sendable with the participant's participantable.
+     */
+    public function getParticipantAttribute(): ?Participant
+    {
+        // If already loaded via relationship, check if it matches
+        $loaded = $this->getRelationValue('participant');
+        if ($loaded && $loaded->participantable_id == $this->sendable_id
+            && $loaded->participantable_type == $this->sendable_type) {
+            return $loaded;
+        }
+
+        // Otherwise, load it manually based on sendable
+        if ($this->conversation_id && $this->sendable_id && $this->sendable_type) {
+            $participant = Participant::where('conversation_id', $this->conversation_id)
+                ->where('participantable_id', $this->sendable_id)
+                ->where('participantable_type', $this->sendable_type)
+                ->first();
+
+            $this->setRelation('participant', $participant);
+
+            return $participant;
+        }
+
+        return null;
+    }
+
+    /**
      * since you have a non-standard namespace;
      * the resolver cannot guess the correct namespace for your Factory class.
      * so we exlicilty tell it the correct namespace
      */
     protected static function newFactory()
     {
-        // TODO: Create factory
-        return null;
+        return \AdultDate\FilamentWirechat\Database\Factories\MessageFactory::new();
     }
 
     protected static function booted()

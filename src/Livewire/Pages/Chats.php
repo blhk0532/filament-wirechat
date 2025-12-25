@@ -1,10 +1,10 @@
 <?php
 
-namespace AdultDate\FilamentWirechat\Livewire\Pages;
+namespace Adultdate\Wirechat\Livewire\Pages;
 
+use Adultdate\Wirechat\Livewire\Concerns\HasPanel;
 use Livewire\Attributes\Title;
 use Livewire\Component;
-use AdultDate\FilamentWirechat\Livewire\Concerns\HasPanel;
 
 class Chats extends Component
 {
@@ -14,7 +14,7 @@ class Chats extends Component
     public function render()
     {
 
-        return view('filament-wirechat::livewire.pages.chats')
+        return view('wirechat::livewire.pages.chats')
             ->layout($this->panel()->getLayout());
 
     }

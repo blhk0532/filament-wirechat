@@ -1,9 +1,9 @@
 <?php
 
-namespace AdultDate\FilamentWirechat\Livewire\Concerns;
+namespace Adultdate\Wirechat\Livewire\Concerns;
 
+use Adultdate\Wirechat\Livewire\Chat\Chats;
 use Livewire\Attributes\Locked;
-use AdultDate\FilamentWirechat\Livewire\Chat\Chats;
 
 /**
  * Trait Actionable
@@ -38,7 +38,7 @@ trait Widget
         // set redirect route
         if ($redirectRoute == null) {
 
-            $redirectRoute = $this->chatsRoute();
+            $redirectRoute = route($this->panel()->chatsRoute());
         }
 
         // set events to dispatch on termination

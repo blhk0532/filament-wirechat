@@ -2,8 +2,6 @@
 
 namespace AdultDate\FilamentWirechat\Services;
 
-use AdultDate\FilamentWirechat\Facades\Wirechat;
-
 class ColorService
 {
     // Base colors registered globally (not tied to any panel)

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" >
 @php
-    $currentPanel= \Wirechat\Wirechat\Facades\Wirechat::currentPanel();
+    $currentPanel= \Adultdate\Wirechat\Facades\Wirechat::currentPanel();
     $title = config('app.name', 'Laravel');
 @endphp
 <head>

@@ -2,12 +2,12 @@
 
 namespace AdultDate\FilamentWirechat\Models;
 
+use AdultDate\FilamentWirechat\Enums\Actions;
+use Adultdate\Wirechat\Facades\Wirechat;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use AdultDate\FilamentWirechat\Enums\Actions;
-use AdultDate\FilamentWirechat\Facades\Wirechat;
 
 /**
  * @property int $id
@@ -43,6 +43,13 @@ class Action extends Model
 {
     use HasFactory;
 
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table;
+
     protected $fillable = [
         'actor_id',
         'actor_type',
@@ -54,10 +61,36 @@ class Action extends Model
 
     public function __construct(array $attributes = [])
     {
-
         $this->table = Wirechat::formatTableName('actions');
 
         parent::__construct($attributes);
+    }
+
+    /**
+     * Get the table associated with the model.
+     */
+    public function getTable(): string
+    {
+        if (! $this->table) {
+            $this->table = Wirechat::formatTableName('actions');
+        }
+
+        return $this->table;
+    }
+
+    /**
+     * Get a new query builder instance for the model.
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function newQuery()
+    {
+        // Ensure table is set before creating query builder
+        if (! $this->table) {
+            $this->table = Wirechat::formatTableName('actions');
+        }
+
+        return parent::newQuery();
     }
 
     protected $casts = [
@@ -71,8 +104,7 @@ class Action extends Model
      */
     protected static function newFactory()
     {
-        // TODO: Create factory
-        return null;
+        return \AdultDate\FilamentWirechat\Database\Factories\ActionFactory::new();
     }
 
     // Polymorphic relationship to the entity being acted upon (message, conversation, etc.)

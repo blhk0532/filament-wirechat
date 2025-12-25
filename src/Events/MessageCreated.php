@@ -1,33 +1,37 @@
 <?php
 
-namespace AdultDate\FilamentWirechat\Events;
+namespace Adultdate\Wirechat\Events;
 
+use AdultDate\FilamentWirechat\Models\Message;
+use Adultdate\Wirechat\Traits\InteractsWithPanel;
 use Carbon\Carbon;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use AdultDate\FilamentWirechat\Facades\Wirechat;
-use AdultDate\FilamentWirechat\Models\Message;
-use Filament\Facades\Filament;
 
-class MessageCreated implements ShouldBroadcastNow
+class MessageCreated implements ShouldBroadcast
 {
-    use Dispatchable, InteractsWithQueue, InteractsWithSockets, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue,InteractsWithSockets, Queueable ,SerializesModels;
+    use InteractsWithPanel;
 
     public $message;
-    public ?string $panelId = null;
+    // public $receiver;
 
     public function __construct(Message $message, ?string $panel = null)
     {
-        $this->message = $message->loadMissing('sendable', 'parent.sendable', 'attachment');
-        
-        // Get current Filament panel ID
-        $currentPanel = Filament::getCurrentPanel();
-        $this->panelId = $panel ?? ($currentPanel ? $currentPanel->getId() : 'default');
+        $this->message = $message->load([]);
+
+        $this->resolvePanel($panel);
+
+        $panelInstance = $this->getPanel();
+        if (! $panelInstance) {
+            throw new \RuntimeException('Panel could not be resolved for MessageCreated event');
+        }
+        $this->onQueue($panelInstance->getMessagesQueue());
     }
 
     /**
@@ -39,8 +43,13 @@ class MessageCreated implements ShouldBroadcastNow
     {
         $channels = [];
 
-        $panelId = $this->panelId;
-        $channels[] = "{$panelId}.conversation.{$this->message->conversation_id}";
+        $panelInstance = $this->getPanel();
+        if (! $panelInstance) {
+            return [];
+        }
+
+        $panelId = $panelInstance->getId();
+        $channels[] = "$panelId.conversation.{$this->message->conversation_id}";
 
         return array_map(function ($channelName) {
             return new PrivateChannel($channelName);
@@ -60,9 +69,12 @@ class MessageCreated implements ShouldBroadcastNow
      */
     public function broadcastQueue(): string
     {
-        return Wirechat::messagesQueue();
+        $panelInstance = $this->getPanel();
+        if (! $panelInstance) {
+            return config('filament-wirechat.broadcasting.messages_queue', 'default');
+        }
+        return $panelInstance->getMessagesQueue();
     }
-
 
     /**
      * Get the data to broadcast.

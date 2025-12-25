@@ -161,4 +161,46 @@ class WirechatService
     {
         return static::usesUuidForConversations();
     }
+
+    /**
+     * Get the default panel instance.
+     *
+     * @return \Wirechat\Wirechat\Panel|null
+     */
+    public function getDefaultPanel()
+    {
+        if (class_exists(\Wirechat\Wirechat\PanelRegistry::class) && app()->bound(\Wirechat\Wirechat\PanelRegistry::class)) {
+            return app(\Wirechat\Wirechat\PanelRegistry::class)->getDefault();
+        }
+
+        return null;
+    }
+
+    /**
+     * Get a panel by its ID.
+     *
+     * @return \Wirechat\Wirechat\Panel|null
+     */
+    public function getPanel(string $panelId)
+    {
+        if (class_exists(\Wirechat\Wirechat\PanelRegistry::class) && app()->bound(\Wirechat\Wirechat\PanelRegistry::class)) {
+            return app(\Wirechat\Wirechat\PanelRegistry::class)->get($panelId);
+        }
+
+        return null;
+    }
+
+    /**
+     * Get the current panel instance.
+     *
+     * @return \Wirechat\Wirechat\Panel|null
+     */
+    public function currentPanel()
+    {
+        if (class_exists(\Wirechat\Wirechat\PanelRegistry::class) && app()->bound(\Wirechat\Wirechat\PanelRegistry::class)) {
+            return app(\Wirechat\Wirechat\PanelRegistry::class)->getCurrent();
+        }
+
+        return null;
+    }
 }

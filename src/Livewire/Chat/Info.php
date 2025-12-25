@@ -1,13 +1,13 @@
 <?php
 
-namespace AdultDate\FilamentWirechat\Livewire\Chat;
+namespace Adultdate\Wirechat\Livewire\Chat;
 
-use Livewire\Attributes\Locked;
-use AdultDate\FilamentWirechat\Livewire\Chats\Chats;
-use AdultDate\FilamentWirechat\Livewire\Concerns\HasPanel;
-use AdultDate\FilamentWirechat\Livewire\Concerns\ModalComponent;
-use AdultDate\FilamentWirechat\Livewire\Concerns\Widget;
 use AdultDate\FilamentWirechat\Models\Conversation;
+use Adultdate\Wirechat\Livewire\Chats\Chats;
+use Adultdate\Wirechat\Livewire\Concerns\HasPanel;
+use Adultdate\Wirechat\Livewire\Concerns\ModalComponent;
+use Adultdate\Wirechat\Livewire\Concerns\Widget;
+use Livewire\Attributes\Locked;
 
 class Info extends ModalComponent
 {
@@ -40,7 +40,7 @@ class Info extends ModalComponent
         // Dispatach event instead if isWidget
         // handle widget termination
         $this->handleComponentTermination(
-            redirectRoute: $this->chatsRoute(),
+            redirectRoute: $this->panel()->chatsRoute(),
             events: [
                 'close-chat',
                 Chats::class => ['chat-deleted',  [$this->conversation->id]],
@@ -54,7 +54,7 @@ class Info extends ModalComponent
         return <<<'HTML'
         <div>
             <!-- Loading spinner... -->
-            <x-filament-wirechat::loading-spin class="m-auto" />
+            <x-wirechat::loading-spin class="m-auto" />
         </div>
         HTML;
     }
@@ -67,7 +67,7 @@ class Info extends ModalComponent
         abort_unless(auth()->check(), 401);
         abort_unless(auth()->user()->belongsToConversation($this->conversation), 403);
 
-        abort_if($this->conversation->isGroup(), 403, __('filament-wirechat::chat.info.messages.invalid_conversation_type_error'));
+        abort_if($this->conversation->isGroup(), 403, __('wirechat::chat.info.messages.invalid_conversation_type_error'));
 
         // load participants
         $this->conversation->load('participants.participantable');
@@ -80,7 +80,7 @@ class Info extends ModalComponent
         $receiver = $this->conversation->peerParticipant(auth()->user())?->participantable;
 
         // Pass data to the view
-        return view('filament-wirechat::livewire.chat.info', [
+        return view('wirechat::livewire.chat.info', [
             'receiver' => $receiver,
             'wirechat_avatar_url' => $receiver?->wirechat_avatar_url,
         ]);

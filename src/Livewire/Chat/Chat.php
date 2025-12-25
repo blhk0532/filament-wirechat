@@ -1,7 +1,19 @@
 <?php
 
-namespace AdultDate\FilamentWirechat\Livewire\Chat;
+namespace Adultdate\Wirechat\Livewire\Chat;
 
+use AdultDate\FilamentWirechat\Enums\ConversationType;
+use AdultDate\FilamentWirechat\Enums\MessageType;
+use AdultDate\FilamentWirechat\Models\Conversation;
+use AdultDate\FilamentWirechat\Models\Message;
+use AdultDate\FilamentWirechat\Models\Participant;
+use Adultdate\Wirechat\Events\MessageCreated;
+use Adultdate\Wirechat\Events\MessageDeleted;
+use Adultdate\Wirechat\Facades\Wirechat;
+use Adultdate\Wirechat\Jobs\NotifyParticipants;
+use Adultdate\Wirechat\Livewire\Chats\Chats;
+use Adultdate\Wirechat\Livewire\Concerns\HasPanel;
+use Adultdate\Wirechat\Livewire\Concerns\Widget;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
@@ -12,18 +24,6 @@ use Livewire\Component;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
-use AdultDate\FilamentWirechat\Enums\ConversationType;
-use AdultDate\FilamentWirechat\Enums\MessageType;
-use AdultDate\FilamentWirechat\Events\MessageCreated;
-use AdultDate\FilamentWirechat\Events\MessageDeleted;
-use AdultDate\FilamentWirechat\Facades\Wirechat;
-use AdultDate\FilamentWirechat\Jobs\NotifyParticipants;
-use AdultDate\FilamentWirechat\Livewire\Chats\Chats;
-use AdultDate\FilamentWirechat\Livewire\Concerns\HasPanel;
-use AdultDate\FilamentWirechat\Livewire\Concerns\Widget;
-use AdultDate\FilamentWirechat\Models\Conversation;
-use AdultDate\FilamentWirechat\Models\Message;
-use AdultDate\FilamentWirechat\Models\Participant;
 
 /**
  * Chat Component
@@ -64,7 +64,7 @@ class Chat extends Component
 
     public array $files = [];
 
-    public Participant|Model|null $authParticipant;
+    public Participant|Model|null $authParticipant = null;
 
     // #[Locked]
     public Participant|Model|null $receiverParticipant = null;
@@ -89,11 +89,10 @@ class Chat extends Component
         if ($this->panel() == null) {
             \Illuminate\Support\Facades\Log::warning('Wirechat:No panels registered in Chat Component');
         } else {
-            $panelId = $this->panelId();
+            $panelId = $this->panel()->getId();
             $channelName = "{$panelId}.conversation.{$conversationId}";
-            // Livewire echo listeners use backslashes (double backslash in PHP string = single backslash)
-            $listeners["echo-private:{$channelName},.AdultDate\\FilamentWirechat\\Events\\MessageCreated"] = 'appendNewMessage';
-            $listeners["echo-private:{$channelName},.AdultDate\\FilamentWirechat\\Events\\MessageDeleted"] = 'removeDeletedMessage';
+            $listeners["echo-private:{$channelName},.Wirechat\\Wirechat\\Events\\MessageCreated"] = 'appendNewMessage';
+            $listeners["echo-private:{$channelName},.Wirechat\\Wirechat\\Events\\MessageDeleted"] = 'removeDeletedMessage';
         }
 
         return $listeners;
@@ -109,7 +108,7 @@ class Chat extends Component
 
             // Make sure message does not belong to auth
             // Make sure message does not belong to auth
-            if ($event['message']['sendable_id'] == auth()->id() && $event['message']['sendable_type'] === $this->auth->getMorphClass()) {
+            if ($event['message']['participant']['participantable_id'] == auth()->id() && $event['message']['participant']['participantable_type'] === $this->auth->getMorphClass()) {
                 return null;
             }
 
@@ -130,6 +129,9 @@ class Chat extends Component
 
             // Dispatch refresh event
             $this->dispatch('refresh')->to(Chats::class);
+            
+            // Dispatch event to update unread count badge
+            $this->dispatch('refresh-unread-count');
         }
     }
 
@@ -143,11 +145,14 @@ class Chat extends Component
             // scroll to bottom
             $this->dispatch('scroll-bottom');
 
-            $newMessage = Message::with(['sendable', 'parent.sendable', 'attachment'])->find($event['message']['id']);
+            // Try FilamentWirechat first, then fallback to standalone wirechat
+            $newMessage = \AdultDate\FilamentWirechat\Models\Message::find($event['message']['id'])
+                ?? Message::find($event['message']['id']);
             // dd($newMessage);
 
             // Make sure message does not belong to auth
-            if ($newMessage->sendable_id == auth()->id() && $newMessage->sendable_type == $this->auth->getMorphClass()) {
+
+            if ($newMessage->participant->participantable_id == auth()->id() && $newMessage->participant->participantable_type == $this->auth->getMorphClass()) {
                 return null;
             }
 
@@ -160,6 +165,9 @@ class Chat extends Component
             // refresh chatlist
             // dispatch event 'refresh ' to chatlist
             $this->dispatch('refresh')->to(Chats::class);
+
+            // Dispatch event to update unread count badge
+            $this->dispatch('refresh-unread-count');
 
             // broadcast
             // $this->selectedConversation->getReceiver()->notify(new MessageRead($this->selectedConversation->id));
@@ -183,7 +191,9 @@ class Chat extends Component
             throw $th;
         }
 
-        $message = Message::where('id', $messageId)->firstOrFail();
+        // Try FilamentWirechat first, then fallback to standalone wirechat
+        $message = \AdultDate\FilamentWirechat\Models\Message::where('id', $messageId)->first()
+            ?? Message::where('id', $messageId)->firstOrFail();
 
         // check if user belongs to message
         abort_unless($this->auth->belongsToConversation($this->conversation), 403);
@@ -247,7 +257,7 @@ class Chat extends Component
         $this->conversation->deleteFor($this->auth);
 
         $this->handleComponentTermination(
-            redirectRoute: $this->chatsRoute(),
+            redirectRoute: $this->panel()->chatsRoute(),
             events: [
                 'close-chat',
                 Chats::class => ['chat-deleted',  [$this->conversation->id]],
@@ -269,7 +279,7 @@ class Chat extends Component
         // Dispatach event instead if isWidget
 
         $this->handleComponentTermination(
-            redirectRoute: $this->chatsRoute(),
+            redirectRoute: $this->panel()->chatsRoute(),
             events: [
                 'close-chat',
                 Chats::class => 'refresh',
@@ -280,13 +290,13 @@ class Chat extends Component
     public function messages(): array
     {
         return [
-            'body.required' => __('filament-wirechat::validation.required', ['attribute' => __('filament-wirechat::chat.inputs.message.label')]),
-            'media.max' => __('filament-wirechat::validation.max.array', ['attribute' => __('filament-wirechat::chat.inputs.media.label')]),
-            'media.*.max' => __('filament-wirechat::validation.max.file', ['attribute' => __('filament-wirechat::chat.inputs.media.label')]),
-            'media.*.mimes' => __('filament-wirechat::validation.mimes', ['attribute' => __('filament-wirechat::chat.inputs.media.label')]),
-            'files.max' => __('filament-wirechat::validation.max.array', ['attribute' => __('filament-wirechat::chat.inputs.files.label')]),
-            'files.*.max' => __('filament-wirechat::validation.max.file', ['attribute' => __('filament-wirechat::chat.inputs.files.label')]),
-            'files.*.mimes' => __('filament-wirechat::validation.mimes', ['attribute' => __('filament-wirechat::chat.inputs.files.label')]),
+            'body.required' => __('wirechat::validation.required', ['attribute' => __('wirechat::chat.inputs.message.label')]),
+            'media.max' => __('wirechat::validation.max.array', ['attribute' => __('wirechat::chat.inputs.media.label')]),
+            'media.*.max' => __('wirechat::validation.max.file', ['attribute' => __('wirechat::chat.inputs.media.label')]),
+            'media.*.mimes' => __('wirechat::validation.mimes', ['attribute' => __('wirechat::chat.inputs.media.label')]),
+            'files.max' => __('wirechat::validation.max.array', ['attribute' => __('wirechat::chat.inputs.files.label')]),
+            'files.*.max' => __('wirechat::validation.max.file', ['attribute' => __('wirechat::chat.inputs.files.label')]),
+            'files.*.mimes' => __('wirechat::validation.mimes', ['attribute' => __('wirechat::chat.inputs.files.label')]),
 
         ];
     }
@@ -299,10 +309,10 @@ class Chat extends Component
 
         // make sure conversation is neigher self nor private
 
-        abort_unless($this->conversation->isGroup(), 403, __('filament-wirechat::chat.messages.cannot_exit_self_or_private_conversation'));
+        abort_unless($this->conversation->isGroup(), 403, __('wirechat::chat.messages.cannot_exit_self_or_private_conversation'));
 
         // make sure owner if group cannot be removed from chat
-        abort_if($auth->isOwnerOf($this->conversation), 403, __('filament-wirechat::chat.messages.owner_cannot_exit_conversation'));
+        abort_if($auth->isOwnerOf($this->conversation), 403, __('wirechat::chat.messages.owner_cannot_exit_conversation'));
 
         // delete conversation
         $auth->exitConversation($this->conversation);
@@ -312,7 +322,7 @@ class Chat extends Component
             $this->dispatch('close-chat');
         } else {
             // redirect to chats page
-            $this->redirect($this->chatsRoute());
+            $this->redirect($this->panel()->chatsRoute());
         }
     }
 
@@ -322,7 +332,7 @@ class Chat extends Component
 
         if (RateLimiter::tooManyAttempts('send-message:'.auth()->id(), $perMinute)) {
 
-            return abort(429, __('filament-wirechat::chat.messages.rate_limit'));
+            return abort(429, __('wirechat::chat.messages.rate_limit'));
         }
 
         RateLimiter::increment('send-message:'.auth()->id());
@@ -354,17 +364,17 @@ class Chat extends Component
 
             //  dd($attachments);
             // Retrieve maxUploads count
-            $maxUploads = $this->getMaxUploads();
+            $maxUploads = $this->panel()->getMaxUploads();
 
             // Files
-            $fileMimes = implode(',', $this->getFileMimes());
+            $fileMimes = implode(',', $this->panel()->getFileMimes());
 
-            $fileMaxUploadSize = (int) $this->getFileMaxUploadSize();
+            $fileMaxUploadSize = (int) $this->panel()->getFileMaxUploadSize();
 
             // media
-            $mediaMimes = implode(',', $this->getMediaMimes());
+            $mediaMimes = implode(',', $this->panel()->getMediaMimes());
 
-            $mediaMaxUploadSize = (int) $this->getMediaMaxUploadSize();
+            $mediaMaxUploadSize = (int) $this->panel()->getMediaMaxUploadSize();
 
             try {
 
@@ -405,11 +415,8 @@ class Chat extends Component
                 $replyId = ($key === 0 && $this->replyMessage) ? $this->replyMessage->id : null;
 
                 // Create the message
-                $message = Message::create([
+                $message = $this->createMessage([
                     'reply_id' => $replyId,
-                    'conversation_id' => $this->conversation->id,
-                    'sendable_type' => $this->auth->getMorphClass(), // Polymorphic sender type
-                    'sendable_id' => auth()->id(), // Polymorphic sender ID
                     'type' => MessageType::ATTACHMENT,
                     // 'body' => $this->body, // Add body if required
                 ]);
@@ -425,9 +432,6 @@ class Chat extends Component
 
                 // dd($attachment);
 
-                // Load relationships before adding to array
-                $message->loadMissing('sendable', 'parent.sendable', 'attachment');
-
                 // append message to createdMessages
                 $createdMessages[] = $message;
 
@@ -437,6 +441,9 @@ class Chat extends Component
 
                 // dispatch event 'refresh ' to chatlist
                 $this->dispatch('refresh')->to(Chats::class);
+
+                // Dispatch event to update unread count badge
+                $this->dispatch('refresh-unread-count');
 
                 // broadcast message
                 $this->dispatchMessageCreatedEvent($message);
@@ -455,17 +462,11 @@ class Chat extends Component
 
         if ($this->body != null) {
 
-            $createdMessage = Message::create([
+            $createdMessage = $this->createMessage([
                 'reply_id' => $this->replyMessage?->id,
-                'conversation_id' => $this->conversation->id,
-                'sendable_type' => $this->auth->getMorphClass(), // Polymorphic sender type
-                'sendable_id' => auth()->id(), // Polymorphic sender ID
                 'body' => $this->body,
                 'type' => MessageType::TEXT,
             ]);
-
-            // Load relationships before pushing
-            $createdMessage->loadMissing('sendable', 'parent.sendable', 'attachment');
 
             // push the message
             $this->pushMessage($createdMessage);
@@ -479,6 +480,9 @@ class Chat extends Component
 
             // dispatch event 'refresh ' to chatlist
             $this->dispatch('refresh')->to(Chats::class);
+
+            // Dispatch event to update unread count badge
+            $this->dispatch('refresh-unread-count');
         }
 
         //     dd('hoting');
@@ -513,7 +517,9 @@ class Chat extends Component
             throw $th;
         }
 
-        $message = Message::where('id', $messageId)->firstOrFail();
+        // Try FilamentWirechat first, then fallback to standalone wirechat
+        $message = \AdultDate\FilamentWirechat\Models\Message::where('id', $messageId)->first()
+            ?? Message::where('id', $messageId)->firstOrFail();
 
         // make sure user is authenticated
         abort_unless(auth()->check(), 401);
@@ -527,6 +533,9 @@ class Chat extends Component
 
         // dispatch event 'refresh ' to chatlist
         $this->dispatch('refresh')->to(Chats::class);
+
+        // Dispatch event to update unread count badge
+        $this->dispatch('refresh-unread-count');
 
         // delete For $user
         $message->deleteFor($this->auth);
@@ -549,7 +558,9 @@ class Chat extends Component
             throw $th;
         }
 
-        $message = Message::where('id', $messageId)->firstOrFail();
+        // Try FilamentWirechat first, then fallback to standalone wirechat
+        $message = \AdultDate\FilamentWirechat\Models\Message::where('id', $messageId)->first()
+            ?? Message::where('id', $messageId)->firstOrFail();
         $authParticipant = $this->conversation->participant($this->auth);
 
         // make sure user is authenticated
@@ -568,6 +579,9 @@ class Chat extends Component
 
         // dispatch event 'refresh ' to chatlist
         $this->dispatch('refresh')->to(Chats::class);
+
+        // Dispatch event to update unread count badge
+        $this->dispatch('refresh-unread-count');
 
         try {
             MessageDeleted::dispatch($message);
@@ -588,14 +602,68 @@ class Chat extends Component
         }
     }
 
+    /**
+     * Get the appropriate Message model class based on conversation type.
+     */
+    private function getMessageModel(): string
+    {
+        // Check if conversation is FilamentWirechat
+        $isFilamentWirechat = $this->conversation instanceof \AdultDate\FilamentWirechat\Models\Conversation;
+
+        return $isFilamentWirechat
+            ? \AdultDate\FilamentWirechat\Models\Message::class
+            : Message::class;
+    }
+
+    /**
+     * Create a message using the appropriate model and fields based on conversation type.
+     */
+    private function createMessage(array $attributes): Message
+    {
+        // Check if conversation is FilamentWirechat
+        $isFilamentWirechat = $this->conversation instanceof \AdultDate\FilamentWirechat\Models\Conversation;
+
+        if ($isFilamentWirechat) {
+            // Use FilamentWirechat Message model with sendable_id/sendable_type
+            // Get the user from authParticipant
+            $user = $this->authParticipant?->participantable ?? auth()->user();
+
+            // Convert MessageType enum if needed (both are string enums, so use value)
+            $type = $attributes['type'] ?? \AdultDate\FilamentWirechat\Enums\MessageType::TEXT;
+            if ($type instanceof MessageType) {
+                // Convert standalone wirechat enum to FilamentWirechat enum using string value
+                $typeValue = $type->value;
+                $type = \AdultDate\FilamentWirechat\Enums\MessageType::from($typeValue);
+            }
+
+            return \AdultDate\FilamentWirechat\Models\Message::create([
+                'reply_id' => $attributes['reply_id'] ?? null,
+                'conversation_id' => $this->conversation->id,
+                'sendable_id' => $user->getKey(),
+                'sendable_type' => $user->getMorphClass(),
+                'body' => $attributes['body'] ?? null,
+                'type' => $type,
+            ]);
+        } else {
+            // Use standalone wirechat Message model with participant_id
+            return Message::create([
+                'reply_id' => $attributes['reply_id'] ?? null,
+                'conversation_id' => $this->conversation->id,
+                'participant_id' => $this->authParticipant->getKey(),
+                'body' => $attributes['body'] ?? null,
+                'type' => $attributes['type'] ?? MessageType::TEXT,
+            ]);
+        }
+    }
+
     private function messageGroupKey(Message $message): string
     {
         $messageDate = $message->created_at;
         $groupKey = '';
         if ($messageDate->isToday()) {
-            $groupKey = __('filament-wirechat::chat.message_groups.today');
+            $groupKey = __('wirechat::chat.message_groups.today');
         } elseif ($messageDate->isYesterday()) {
-            $groupKey = __('filament-wirechat::chat.message_groups.yesterday');
+            $groupKey = __('wirechat::chat.message_groups.yesterday');
         } elseif ($messageDate->greaterThanOrEqualTo(now()->subDays(7))) {
             $groupKey = $messageDate->format('l'); // Day name
         } else {
@@ -613,7 +681,7 @@ class Chat extends Component
         // Ensure loadedMessages is a Collection
         $this->loadedMessages = collect($this->loadedMessages);
 
-        // Use tap to create a new group if it doesn’t exist, then push the message
+        // Use tap to create a new group if it doesn't exist, then push the message
         $this->loadedMessages->put($groupKey, $this->loadedMessages->get($groupKey, collect())->push($message));
     }
 
@@ -629,7 +697,7 @@ class Chat extends Component
     {
         $this->loadedMessages = $this->loadedMessages->map(function ($group) {
             return $group->map(function ($message) {
-                return $message->loadMissing('sendable', 'parent.sendable', 'attachment');
+                return $message->loadMissing('participant.participantable', 'parent.participant.participantable', 'attachment');
             });
         });
     }
@@ -676,14 +744,14 @@ class Chat extends Component
             // !also do not forget to exlude auth user or message owner from particpants
             // todo: maybe also broadcast for self conversation , incase user is using multiple devices
             // sleep(3);
-            broadcast(new MessageCreated($message, $this->panelId()))->toOthers();
+            broadcast(new MessageCreated($message, $this->panel()->getId()))->toOthers();
 
             // notify participants if conversation is NOT self
             $isSelf = $this->conversation->isSelf();
             /** @var bool $isSelf */
             if (! $isSelf) {
 
-                NotifyParticipants::dispatch($this->conversation, $message, $this->panelId());
+                NotifyParticipants::dispatch($this->conversation, $message, $this->panel);
             }
         } catch (\Throwable $th) {
 
@@ -700,10 +768,7 @@ class Chat extends Component
         // rate limit
         $this->rateLimit();
 
-        $message = Message::create([
-            'conversation_id' => $this->conversation->id,
-            'sendable_type' => $this->auth->getMorphClass(), // Polymorphic sender type
-            'sendable_id' => auth()->id(), // Polymorphic sender ID
+        $message = $this->createMessage([
             'body' => '❤️',
             'type' => MessageType::TEXT,
         ]);
@@ -717,6 +782,9 @@ class Chat extends Component
 
         // dispatch event 'refresh ' to chatlist
         $this->dispatch('refresh')->to(Chats::class);
+
+        // Dispatch event to update unread count badge
+        $this->dispatch('refresh-unread-count');
 
         // scroll to bottom
         $this->dispatch('scroll-bottom');
@@ -744,7 +812,7 @@ class Chat extends Component
         // Fetch paginated messages
         /* @var Message $message */
         $messages = $this->conversation->messages()
-            ->with('sendable', 'parent.sendable', 'attachment')
+            ->with('participant.participantable', 'parent.participant.participantable', 'attachment')
             ->orderBy('created_at', 'asc')
             ->skip($this->totalMessageCount - $this->paginate_var)
             ->take($this->paginate_var)
@@ -766,7 +834,7 @@ class Chat extends Component
 
     public function placeholder()
     {
-        return view('filament-wirechat::components.placeholders.chat');
+        return view('wirechat::components.placeholders.chat');
     }
 
     public function mount($conversation = null)
@@ -777,43 +845,40 @@ class Chat extends Component
         $this->loadMessages();
     }
 
-    /**
-     * Handle when conversation prop is updated (e.g., via wire:navigate in SPA mode).
-     */
-    public function updatedConversation($value): void
-    {
-        // Reinitialize when conversation changes
-        if ($value) {
-            $this->initializeConversation($value);
-            $this->initializeParticipants();
-            $this->finalizeConversationState();
-            $this->loadMessages();
-        }
-    }
-
     private function initializeConversation($conversation)
     {
         abort_unless(auth()->check(), 401);
 
         // Handle different input scenarios
-        if ($conversation instanceof Conversation) {
+        // Check if it's a Conversation instance (either FilamentWirechat or standalone wirechat)
+        if ($conversation instanceof Conversation || $conversation instanceof \AdultDate\FilamentWirechat\Models\Conversation) {
             $this->conversation = $conversation;
         } elseif (is_numeric($conversation) || is_string($conversation)) {
             // Cast to integer if numeric (handles numeric strings too)
             $conversationId = $conversation;
-            $this->conversation = Conversation::find($conversationId);
+            // Try FilamentWirechat first (since route model binding uses it)
+            $this->conversation = \AdultDate\FilamentWirechat\Models\Conversation::find($conversationId);
+
+            // Fallback to standalone wirechat if not found
+            if (! $this->conversation) {
+                $this->conversation = Conversation::find($conversationId);
+            }
 
             if (! $this->conversation) {
-                abort(404, __('filament-wirechat::chat.messages.conversation_not_found')); // Custom error response
+                abort(404, __('wirechat::chat.messages.conversation_not_found')); // Custom error response
             }
         } elseif (is_null($conversation)) {
-            abort(422, __('filament-wirechat::chat.messages.conversation_id_required')); // Custom error for missing input
+            abort(422, __('wirechat::chat.messages.conversation_id_required')); // Custom error for missing input
         } else {
-            return abort(422, __('filament-wirechat::chat.messages.invalid_conversation_input')); // Handle invalid input types
+            abort(422, __('wirechat::chat.messages.invalid_conversation_input')); // Handle invalid input types
         }
 
         // $this->conversation = Conversation::where('id', $conversation)->firstOr(fn () => abort(404));
-        $this->totalMessageCount = Message::where('conversation_id', $this->conversation->id)->count();
+        // Use the correct Message model based on conversation type
+        $messageModel = $this->conversation instanceof \AdultDate\FilamentWirechat\Models\Conversation
+            ? \AdultDate\FilamentWirechat\Models\Message::class
+            : Message::class;
+        $this->totalMessageCount = $messageModel::where('conversation_id', $this->conversation->id)->count();
         abort_unless($this->auth->belongsToConversation($this->conversation), 403);
     }
 
@@ -874,10 +939,13 @@ class Chat extends Component
                 $this->authParticipant->update(['conversation_deleted_at' => null]);
             }
         }
+
+        // Dispatch event to update unread count badge
+        $this->dispatch('refresh-unread-count');
     }
 
     public function render()
     {
-        return view('filament-wirechat::livewire.chat.chat');
+        return view('wirechat::livewire.chat.chat');
     }
 }

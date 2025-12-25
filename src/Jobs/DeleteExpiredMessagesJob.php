@@ -1,11 +1,11 @@
 <?php
 
-namespace AdultDate\FilamentWirechat\Jobs;
+namespace Adultdate\Wirechat\Jobs;
 
 use AdultDate\FilamentWirechat\Enums\Actions;
-use AdultDate\FilamentWirechat\Facades\Wirechat;
 use AdultDate\FilamentWirechat\Models\Conversation;
 use AdultDate\FilamentWirechat\Models\Message;
+use Adultdate\Wirechat\Facades\Wirechat;
 use Carbon\Carbon;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;

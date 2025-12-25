@@ -1,12 +1,12 @@
 <?php
 
-namespace AdultDate\FilamentWirechat\Http\Resources;
+namespace Adultdate\Wirechat\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @mixin \AdultDate\FilamentWirechat\Models\Attachment
+ * @mixin \Adultdate\Wirechat\Models\Attachment
  */
 class AttachmentResource extends JsonResource
 {

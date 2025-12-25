@@ -2,6 +2,11 @@
 
 namespace AdultDate\FilamentWirechat\Models;
 
+use AdultDate\FilamentWirechat\Enums\Actions;
+use AdultDate\FilamentWirechat\Enums\ParticipantRole;
+use AdultDate\FilamentWirechat\Models\Scopes\WithoutRemovedActionScope;
+use Adultdate\Wirechat\Facades\Wirechat;
+use Adultdate\Wirechat\Traits\Actionable;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,11 +14,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Facades\DB;
-use AdultDate\FilamentWirechat\Enums\Actions;
-use AdultDate\FilamentWirechat\Enums\ParticipantRole;
-use AdultDate\FilamentWirechat\Facades\Wirechat;
-use AdultDate\FilamentWirechat\Models\Scopes\WithoutRemovedActionScope;
-use AdultDate\FilamentWirechat\Traits\Actionable;
 
 /**
  * @property int $id
@@ -77,6 +77,13 @@ class Participant extends Model
         'last_active_at',
     ];
 
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table;
+
     protected $casts = [
         'role' => ParticipantRole::class,
         'exited_at' => 'datetime',
@@ -91,6 +98,33 @@ class Participant extends Model
         $this->table = Wirechat::formatTableName('participants');
 
         parent::__construct($attributes);
+    }
+
+    /**
+     * Get the table associated with the model.
+     */
+    public function getTable(): string
+    {
+        if (! $this->table) {
+            $this->table = Wirechat::formatTableName('participants');
+        }
+
+        return $this->table;
+    }
+
+    /**
+     * Get a new query builder instance for the model.
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function newQuery()
+    {
+        // Ensure table is set before creating query builder
+        if (! $this->table) {
+            $this->table = Wirechat::formatTableName('participants');
+        }
+
+        return parent::newQuery();
     }
 
     /**
@@ -121,12 +155,11 @@ class Participant extends Model
      * the resolver cannot guess the correct namespace for your Factory class.
      * so we exlicilty tell it the correct namespace
      *
-     * @return \AdultDate\FilamentWirechat\Workbench\Database\Factories\ParticipantFactory
+     * @return \AdultDate\FilamentWirechat\Database\Factories\ParticipantFactory
      */
     protected static function newFactory()
     {
-        // TODO: Create factory
-        return null;
+        return \AdultDate\FilamentWirechat\Database\Factories\ParticipantFactory::new();
     }
 
     /**

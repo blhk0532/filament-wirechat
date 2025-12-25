@@ -1,11 +1,11 @@
 <?php
 
-namespace AdultDate\FilamentWirechat\Livewire\New;
+namespace Adultdate\Wirechat\Livewire\New;
 
-use AdultDate\FilamentWirechat\Livewire\Concerns\HasPanel;
-use AdultDate\FilamentWirechat\Livewire\Concerns\ModalComponent;
-use AdultDate\FilamentWirechat\Livewire\Concerns\Widget;
-use AdultDate\FilamentWirechat\Livewire\Widgets\Wirechat as WidgetsWirechat;
+use Adultdate\Wirechat\Livewire\Concerns\HasPanel;
+use Adultdate\Wirechat\Livewire\Concerns\ModalComponent;
+use Adultdate\Wirechat\Livewire\Concerns\Widget;
+use Adultdate\Wirechat\Livewire\Widgets\Wirechat as WidgetsWirechat;
 
 class Chat extends ModalComponent
 {
@@ -42,7 +42,7 @@ class Chat extends ModalComponent
             /**
              * todo: migrate search chantable to channel
              */
-            $this->users = $this->searchUsers($this->search)->resolve();
+            $this->users = $this->panel()->searchUsers($this->search)->resolve();
         }
     }
 
@@ -63,7 +63,7 @@ class Chat extends ModalComponent
 
                 // redirect to conversation
                 $this->handleComponentTermination(
-                    redirectRoute: $this->chatRoute($createdConversation->id),
+                    redirectRoute: $this->panel()->chatRoute($createdConversation->id),
                     events: [
                         WidgetsWirechat::class => ['open-chat',  ['conversation' => $createdConversation->id]],
                     ]
@@ -82,6 +82,6 @@ class Chat extends ModalComponent
     public function render()
     {
 
-        return view('filament-wirechat::livewire.new.chat');
+        return view('wirechat::livewire.new.chat');
     }
 }

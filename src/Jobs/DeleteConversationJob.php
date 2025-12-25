@@ -1,10 +1,9 @@
 <?php
 
-namespace AdultDate\FilamentWirechat\Jobs;
+namespace Adultdate\Wirechat\Jobs;
 
-use AdultDate\FilamentWirechat\Facades\Wirechat;
 use AdultDate\FilamentWirechat\Models\Conversation;
-use AdultDate\FilamentWirechat\Traits\InteractsWithPanel;
+use Adultdate\Wirechat\Traits\InteractsWithPanel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -26,8 +25,7 @@ class DeleteConversationJob implements ShouldQueue
     {
         $this->resolvePanel($panel);
         //
-        // Use the notifications queue from config
-        $this->onQueue(Wirechat::notificationsQueue());
+        $this->onQueue($this->getPanel()->getEventsQueue());
 
         $this->delay(now()->addSeconds(5)); // Delay
     }

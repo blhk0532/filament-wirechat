@@ -2,10 +2,10 @@
 
 namespace AdultDate\FilamentWirechat\Models\Scopes;
 
+use AdultDate\FilamentWirechat\Enums\Actions;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Scope;
-use AdultDate\FilamentWirechat\Enums\Actions;
 
 class WithoutRemovedActionScope implements Scope
 {

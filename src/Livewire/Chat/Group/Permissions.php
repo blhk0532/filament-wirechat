@@ -1,14 +1,14 @@
 <?php
 
-namespace AdultDate\FilamentWirechat\Livewire\Chat\Group;
+namespace Adultdate\Wirechat\Livewire\Chat\Group;
 
-use Livewire\Attributes\Locked;
-// use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
-use Livewire\WithFileUploads;
-use AdultDate\FilamentWirechat\Livewire\Concerns\HasPanel;
-use AdultDate\FilamentWirechat\Livewire\Concerns\ModalComponent;
 use AdultDate\FilamentWirechat\Models\Conversation;
+// use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use AdultDate\FilamentWirechat\Models\Participant;
+use Adultdate\Wirechat\Livewire\Concerns\HasPanel;
+use Adultdate\Wirechat\Livewire\Concerns\ModalComponent;
+use Livewire\Attributes\Locked;
+use Livewire\WithFileUploads;
 
 class Permissions extends ModalComponent
 {
@@ -87,6 +87,6 @@ class Permissions extends ModalComponent
     {
 
         // Pass data to the view
-        return view('filament-wirechat::livewire.chat.group.permissions', ['maxGroupMembers' => $this->getMaxGroupMembers()]);
+        return view('wirechat::livewire.chat.group.permissions', ['maxGroupMembers' => $this->panel()->getMaxGroupMembers()]);
     }
 }

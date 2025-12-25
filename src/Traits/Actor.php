@@ -1,6 +1,6 @@
 <?php
 
-namespace AdultDate\FilamentWirechat\Traits;
+namespace Adultdate\Wirechat\Traits;
 
 use AdultDate\FilamentWirechat\Models\Action;
 

@@ -1,13 +1,12 @@
 <?php
 
-namespace AdultDate\FilamentWirechat\Jobs;
+namespace Adultdate\Wirechat\Jobs;
 
-use AdultDate\FilamentWirechat\Events\NotifyParticipant;
-use AdultDate\FilamentWirechat\Facades\Wirechat;
 use AdultDate\FilamentWirechat\Models\Conversation;
 use AdultDate\FilamentWirechat\Models\Message;
 use AdultDate\FilamentWirechat\Models\Participant;
-use AdultDate\FilamentWirechat\Traits\InteractsWithPanel;
+use Adultdate\Wirechat\Events\NotifyParticipant;
+use Adultdate\Wirechat\Traits\InteractsWithPanel;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -47,8 +46,7 @@ class NotifyParticipants implements ShouldQueue
     ) {
         $this->resolvePanel($panel);
         //
-        // Use the notifications queue from config
-        $this->onQueue(Wirechat::notificationsQueue());
+        $this->onQueue($this->getPanel()->getEventsQueue());
         //  $this->delay(now()->addSeconds(3)); // Delay
         $this->auth = $message->sendable;
 
@@ -86,7 +84,7 @@ class NotifyParticipants implements ShouldQueue
             ->latest('last_active_at') // Prioritize active participants
             ->chunk(50, function ($participants) {
                 foreach ($participants as $key => $participant) {
-                    broadcast(new NotifyParticipant($participant, $this->message, $this->panel));
+                    broadcast(new NotifyParticipant($participant, $this->message, $this->getPanel()->getId()));
                 }
             });
 

@@ -1,16 +1,16 @@
 <?php
 
-namespace AdultDate\FilamentWirechat\Livewire\Chat\Group;
+namespace Adultdate\Wirechat\Livewire\Chat\Group;
 
+use AdultDate\FilamentWirechat\Models\Conversation;
+use AdultDate\FilamentWirechat\Models\Participant;
+use Adultdate\Wirechat\Livewire\Concerns\HasPanel;
+// use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use Adultdate\Wirechat\Livewire\Concerns\ModalComponent;
 use App\Models\User;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\Validate;
-// use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
-use AdultDate\FilamentWirechat\Livewire\Concerns\HasPanel;
-use AdultDate\FilamentWirechat\Livewire\Concerns\ModalComponent;
-use AdultDate\FilamentWirechat\Models\Conversation;
-use AdultDate\FilamentWirechat\Models\Participant;
 
 class AddMembers extends ModalComponent
 {
@@ -80,7 +80,7 @@ class AddMembers extends ModalComponent
              * - id, type, wirechat_name, wirechat_avatar_url
              * - belongsToConversation flag for the current conversation
              */
-            $this->users = collect($this->searchUsers($this->search)->collection)
+            $this->users = collect($this->panel()->searchUsers($this->search)->collection)
                 ->map(function ($resource) {
                     $model = $resource->resource; // underlying model
 
@@ -114,7 +114,7 @@ class AddMembers extends ModalComponent
             } else {
 
                 // validate members count
-                if ($this->newTotalCount >= $this->getMaxGroupMembers()) {
+                if ($this->newTotalCount >= $this->panel()->getMaxGroupMembers()) {
                     return $this->dispatch('show-member-limit-error');
                 }
 
@@ -160,7 +160,7 @@ class AddMembers extends ModalComponent
 
         $this->closeWirechatModal();
 
-        $this->dispatch('participantsCountUpdated', $this->newTotalCount)->to(\AdultDate\FilamentWirechat\Livewire\Chat\Group\Info::class);
+        $this->dispatch('participantsCountUpdated', $this->newTotalCount)->to(\Adultdate\Wirechat\Livewire\Chat\Group\Info::class);
     }
 
     public function mount()
@@ -185,6 +185,6 @@ class AddMembers extends ModalComponent
     {
 
         // Pass data to the view
-        return view('filament-wirechat::livewire.chat.group.add-members', ['maxGroupMembers' => $this->getMaxGroupMembers()]);
+        return view('wirechat::livewire.chat.group.add-members', ['maxGroupMembers' => $this->panel()->getMaxGroupMembers()]);
     }
 }

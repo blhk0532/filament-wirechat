@@ -8,12 +8,10 @@ use Filament\Panel;
 use Filament\Support\Assets\Asset;
 use Filament\Support\Assets\Css;
 use Filament\Support\Assets\Js;
-use Filament\Support\Colors\Color;
 use Filament\Support\Facades\FilamentAsset;
 use Filament\Support\Facades\FilamentIcon;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Vite;
-use Illuminate\Filesystem\Filesystem;
 use Livewire\Features\SupportTesting\Testable;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
@@ -38,22 +36,54 @@ class FilamentWirechatServiceProvider extends PackageServiceProvider
                     ->askToStarRepoOnGitHub('adultdate/filament-wirechat');
             })
             ->hasConfigFile()
-            ->hasMigrations($this->getMigrations())
             ->hasViews(static::$viewNamespace)
             ->hasTranslations();
 
+        // Publish migrations directly (since they're .php files, not .stub)
+        $this->publishes([
+            __DIR__.'/../database/migrations' => database_path('migrations'),
+        ], 'filament-wirechat-migrations');
+
         // Publish assets
         $this->publishes([
-            __DIR__ . '/../resources/dist' => public_path('vendor/filament-wirechat'),
+            __DIR__.'/../resources/dist' => public_path('vendor/filament-wirechat'),
         ], 'filament-wirechat-assets');
     }
 
     public function packageRegistered(): void
     {
-        $this->app->singleton('wirechat', function ($app) {
-            return new Services\WirechatService;
-        });
+        // Register wirechat service (check if already bound by standalone wirechat plugin)
+        if (! $this->app->bound('wirechat')) {
+            $this->app->singleton('wirechat', function ($app) {
+                return new Services\WirechatService;
+            });
+        }
 
+        // Also bind 'adultdate' alias for compatibility with standalone wirechat
+        if (! $this->app->bound('adultdate')) {
+            $this->app->singleton('adultdate', function ($app) {
+                return $app->make('wirechat');
+            });
+        }
+
+        // Register ColorService
+        if (! $this->app->bound(\AdultDate\FilamentWirechat\Services\ColorService::class)) {
+            $this->app->singleton(\AdultDate\FilamentWirechat\Services\ColorService::class, fn () => new \AdultDate\FilamentWirechat\Services\ColorService);
+            // Also create an alias for backward compatibility with Adultdate\Wirechat namespace
+            $this->app->alias(\AdultDate\FilamentWirechat\Services\ColorService::class, \Adultdate\Wirechat\Services\ColorService::class);
+        }
+
+        // Register PanelRegistry for standalone wirechat panels
+        if (class_exists(\Wirechat\Wirechat\PanelRegistry::class)) {
+            if (! $this->app->bound(\Wirechat\Wirechat\PanelRegistry::class)) {
+                $this->app->singleton(\Wirechat\Wirechat\PanelRegistry::class, function ($app) {
+                    return new \Wirechat\Wirechat\PanelRegistry;
+                });
+            }
+
+            // Alias for backward compatibility
+            $this->app->alias(\Wirechat\Wirechat\PanelRegistry::class, \Adultdate\Wirechat\PanelRegistry::class);
+        }
     }
 
     public function packageBooted(): void
@@ -72,14 +102,27 @@ class FilamentWirechatServiceProvider extends PackageServiceProvider
         // Icon Registration
         FilamentIcon::register($this->getIcons());
 
-        // Register Livewire Components
+        // Register Livewire Components (both filament-wirechat and standalone wirechat)
         $this->registerLivewireComponents();
+
+        // Register standalone wirechat Livewire components (if classes exist)
+        $this->registerStandaloneWirechatComponents();
 
         // Load broadcasting channels
         $this->loadBroadcastingChannels();
 
-        // Register Blade directive for theme CSS variables
+        // Load standalone wirechat routes (if they exist)
+        $this->loadStandaloneWirechatRoutes();
+
+        // Register middleware for standalone wirechat
+        $this->registerStandaloneWirechatMiddleware();
+
+        // Register Blade directives
         $this->registerThemeStyles();
+        $this->registerStandaloneWirechatBladeDirectives();
+
+        // Load standalone wirechat views and translations
+        $this->loadStandaloneWirechatViews();
 
         // Testing
         Testable::mixin(new Testing\TestsFilamentWirechat);
@@ -87,25 +130,47 @@ class FilamentWirechatServiceProvider extends PackageServiceProvider
 
     protected function loadBroadcastingChannels(): void
     {
-        if (file_exists($channelsPath = __DIR__ . '/../routes/channels.php')) {
+        // Only load Filament channels if Filament is available
+        if (! class_exists(\Filament\Facades\Filament::class)) {
+            return;
+        }
+
+        // Use a static flag to prevent double-loading
+        static $loaded = false;
+        if ($loaded) {
+            return;
+        }
+
+        // Check if already defined to prevent double-loading
+        if (defined('FILAMENT_WIRECHAT_CHANNELS_LOADED')) {
+            $loaded = true;
+            return;
+        }
+
+        $channelsPath = __DIR__.'/../routes/channels.php';
+        if (file_exists($channelsPath)) {
             require $channelsPath;
+            $loaded = true;
         }
     }
 
     protected function registerLivewireComponents(): void
     {
-        \Livewire\Livewire::component('filament-wirechat.chats', \AdultDate\FilamentWirechat\Livewire\Chats\Chats::class);
-        \Livewire\Livewire::component('filament-wirechat.chat', \AdultDate\FilamentWirechat\Livewire\Chat\Chat::class);
-        \Livewire\Livewire::component('filament-wirechat.chat.drawer', \AdultDate\FilamentWirechat\Livewire\Chat\Drawer::class);
-        \Livewire\Livewire::component('filament-wirechat.chat.info', \AdultDate\FilamentWirechat\Livewire\Chat\Info::class);
-        \Livewire\Livewire::component('filament-wirechat.chat.group.info', \AdultDate\FilamentWirechat\Livewire\Chat\Group\Info::class);
-        \Livewire\Livewire::component('filament-wirechat.chat.group.members', \AdultDate\FilamentWirechat\Livewire\Chat\Group\Members::class);
-        \Livewire\Livewire::component('filament-wirechat.chat.group.add-members', \AdultDate\FilamentWirechat\Livewire\Chat\Group\AddMembers::class);
-        \Livewire\Livewire::component('filament-wirechat.chat.group.permissions', \AdultDate\FilamentWirechat\Livewire\Chat\Group\Permissions::class);
-        \Livewire\Livewire::component('filament-wirechat.new.chat', \AdultDate\FilamentWirechat\Livewire\New\Chat::class);
-        \Livewire\Livewire::component('filament-wirechat.new.group', \AdultDate\FilamentWirechat\Livewire\New\Group::class);
-        \Livewire\Livewire::component('filament-wirechat.modal', \AdultDate\FilamentWirechat\Livewire\Modals\Modal::class);
-        \Livewire\Livewire::component('filament-wirechat.widget', \AdultDate\FilamentWirechat\Livewire\Widgets\Wirechat::class);
+        \Livewire\Livewire::component('filament-wirechat.chats', \Adultdate\Wirechat\Livewire\Chats\Chats::class);
+        \Livewire\Livewire::component('filament-wirechat.chat', \Adultdate\Wirechat\Livewire\Chat\Chat::class);
+        \Livewire\Livewire::component('filament-wirechat.chat.drawer', \Adultdate\Wirechat\Livewire\Chat\Drawer::class);
+        \Livewire\Livewire::component('filament-wirechat.chat.info', \Adultdate\Wirechat\Livewire\Chat\Info::class);
+        \Livewire\Livewire::component('filament-wirechat.chat.group.info', \Adultdate\Wirechat\Livewire\Chat\Group\Info::class);
+        \Livewire\Livewire::component('filament-wirechat.chat.group.members', \Adultdate\Wirechat\Livewire\Chat\Group\Members::class);
+        \Livewire\Livewire::component('filament-wirechat.chat.group.add-members', \Adultdate\Wirechat\Livewire\Chat\Group\AddMembers::class);
+        \Livewire\Livewire::component('filament-wirechat.chat.group.permissions', \Adultdate\Wirechat\Livewire\Chat\Group\Permissions::class);
+        \Livewire\Livewire::component('filament-wirechat.new.chat', \Adultdate\Wirechat\Livewire\New\Chat::class);
+        \Livewire\Livewire::component('filament-wirechat.new.group', \Adultdate\Wirechat\Livewire\New\Group::class);
+        \Livewire\Livewire::component('filament-wirechat.modal', \Adultdate\Wirechat\Livewire\Modals\Modal::class);
+        \Livewire\Livewire::component('filament-wirechat.widget', \Adultdate\Wirechat\Livewire\Widgets\Wirechat::class);
+        \Livewire\Livewire::component('filament-wirechat.chats-icon-button', \AdultDate\FilamentWirechat\Livewire\Components\ChatsIconButton::class);
+        \Livewire\Livewire::component('chats-sidebar', \AdultDate\FilamentWirechat\Livewire\Components\ChatsSidebar::class);
+        \Livewire\Livewire::component(\AdultDate\FilamentWirechat\Filament\Widgets\WirechatWidget::class);
     }
 
     protected function getAssetPackageName(): ?string
@@ -154,21 +219,6 @@ class FilamentWirechatServiceProvider extends PackageServiceProvider
     }
 
     /**
-     * @return array<string>
-     */
-    protected function getMigrations(): array
-    {
-        return [
-            'create_wirechat_conversations_table',
-            'create_wirechat_attachments_table',
-            'create_wirechat_messages_table',
-            'create_wirechat_participants_table',
-            'create_wirechat_actions_table',
-            'create_wirechat_groups_table',
-        ];
-    }
-
-    /**
      * Register Blade directive for injecting theme CSS variables.
      * Uses Filament's panel colors by default, with config overrides.
      */
@@ -177,5 +227,149 @@ class FilamentWirechatServiceProvider extends PackageServiceProvider
         Blade::directive('filamentWirechatStyles', function () {
             return "<?php echo app('AdultDate\FilamentWirechat\Services\ThemeService')->renderStyles(); ?>";
         });
+    }
+
+    /**
+     * Register standalone wirechat Livewire components (wirechat.* prefix)
+     */
+    protected function registerStandaloneWirechatComponents(): void
+    {
+        // Only register if the standalone wirechat classes exist
+        if (! class_exists(\Adultdate\Wirechat\Livewire\Pages\Chats::class)) {
+            return;
+        }
+
+        \Livewire\Livewire::component('wirechat.pages.index', \Adultdate\Wirechat\Livewire\Pages\Chats::class);
+        \Livewire\Livewire::component('wirechat.pages.view', \Adultdate\Wirechat\Livewire\Pages\Chat::class);
+        \Livewire\Livewire::component('wirechat.chats', \Adultdate\Wirechat\Livewire\Chats\Chats::class);
+        \Livewire\Livewire::component('wirechat.modal', \Adultdate\Wirechat\Livewire\Modals\Modal::class);
+        \Livewire\Livewire::component('wirechat.new.chat', \Adultdate\Wirechat\Livewire\New\Chat::class);
+        \Livewire\Livewire::component('wirechat.new.group', \Adultdate\Wirechat\Livewire\New\Group::class);
+        \Livewire\Livewire::component('wirechat.chat', \Adultdate\Wirechat\Livewire\Chat\Chat::class);
+        \Livewire\Livewire::component('wirechat.chat.info', \Adultdate\Wirechat\Livewire\Chat\Info::class);
+        \Livewire\Livewire::component('wirechat.chat.group.info', \Adultdate\Wirechat\Livewire\Chat\Group\Info::class);
+        \Livewire\Livewire::component('wirechat.chat.drawer', \Adultdate\Wirechat\Livewire\Chat\Drawer::class);
+        \Livewire\Livewire::component('wirechat.chat.group.add-members', \Adultdate\Wirechat\Livewire\Chat\Group\AddMembers::class);
+        \Livewire\Livewire::component('wirechat.chat.group.members', \Adultdate\Wirechat\Livewire\Chat\Group\Members::class);
+        \Livewire\Livewire::component('wirechat.chat.group.permissions', \Adultdate\Wirechat\Livewire\Chat\Group\Permissions::class);
+        \Livewire\Livewire::component('adultdate', \Adultdate\Wirechat\Livewire\Widgets\Wirechat::class);
+    }
+
+    /**
+     * Register middleware for standalone wirechat
+     */
+    protected function registerStandaloneWirechatMiddleware(): void
+    {
+        if (! class_exists(\Adultdate\Wirechat\Middleware\BelongsToConversation::class)) {
+            return;
+        }
+
+        $router = $this->app->make(\Illuminate\Routing\Router::class);
+
+        $router->aliasMiddleware('belongsToConversation', \Adultdate\Wirechat\Middleware\BelongsToConversation::class);
+        $router->aliasMiddleware('wirechat.setPanel', \Adultdate\Wirechat\Middleware\SetCurrentPanel::class);
+        $router->aliasMiddleware('wirechat.panelAccess', \Adultdate\Wirechat\Middleware\EnsureWirechatPanelAccess::class);
+    }
+
+    /**
+     * Load standalone wirechat routes
+     */
+    protected function loadStandaloneWirechatRoutes(): void
+    {
+        // Only load standalone routes if PanelRegistry exists (standalone wirechat)
+        if (! class_exists(\Wirechat\Wirechat\PanelRegistry::class) || ! app()->bound(\Wirechat\Wirechat\PanelRegistry::class)) {
+            return;
+        }
+
+        // Load standalone wirechat web routes if they exist
+        $standaloneWebRoutes = __DIR__.'/../routes/standalone-web.php';
+        if (file_exists($standaloneWebRoutes)) {
+            $this->loadRoutesFrom($standaloneWebRoutes);
+        }
+
+        // Load standalone wirechat channel routes only if not already loaded via Filament channels
+        // Check if Filament is available - if so, Filament channels handle it
+        if (! class_exists(\Filament\Facades\Filament::class)) {
+            $standaloneChannelRoutes = __DIR__.'/../routes/standalone-channels.php';
+            if (file_exists($standaloneChannelRoutes)) {
+                $this->loadRoutesFrom($standaloneChannelRoutes);
+            }
+        }
+    }
+
+    /**
+     * Register standalone wirechat Blade directives
+     */
+    protected function registerStandaloneWirechatBladeDirectives(): void
+    {
+        // Only register if the standalone wirechat facade exists
+        if (! class_exists(\Adultdate\Wirechat\Facades\Wirechat::class)) {
+            return;
+        }
+
+        // Register wirechatAssets directive - delegates to a view/helper if needed
+        // Users can use @wirechatAssets in their views for standalone wirechat integration
+        Blade::directive('wirechatAssets', function ($expression): string {
+            $panel = $expression ?: 'null';
+
+            return '<?php
+                $wirechatFacade = \Adultdate\Wirechat\Facades\Wirechat::class;
+                if (class_exists($wirechatFacade)) {
+                    $panelArg = '.$panel.';
+                    $currentPanel = $panelArg && $panelArg !== \'null\' && $panelArg !== null
+                        ? \Adultdate\Wirechat\Facades\Wirechat::getPanel($panelArg)
+                        : \Adultdate\Wirechat\Facades\Wirechat::currentPanel();
+                    
+                    if ($currentPanel) {
+                        try {
+                            echo view(\'wirechat::components.toast\')->render();
+                        } catch (\Exception $e) {
+                            // Silently fail if views don\'t exist
+                        }
+                    }
+                }
+            ?>';
+        });
+
+        // Register wirechatStyles directive
+        Blade::directive('wirechatStyles', function ($expression): string {
+            $panel = $expression ?: 'null';
+
+            return '<?php
+                $wirechatFacade = \Adultdate\Wirechat\Facades\Wirechat::class;
+                if (class_exists($wirechatFacade)) {
+                    $panelArg = '.$panel.';
+                    $currentPanel = $panelArg && $panelArg !== \'null\' && $panelArg !== null
+                        ? \Adultdate\Wirechat\Facades\Wirechat::getPanel($panelArg)
+                        : \Adultdate\Wirechat\Facades\Wirechat::currentPanel();
+                    
+                    if ($currentPanel) {
+                        $primaryColor = isset($currentPanel->getColors()[\'primary\']) 
+                            ? $currentPanel->getColors()[\'primary\'][500] 
+                            : \'oklch(0.623 0.214 259.815)\';
+                        
+                        echo \'<style>:root { --wc-brand-primary: \' . $primaryColor . \'; --wc-light-primary: #fff; --wc-light-secondary: oklch(0.967 0.001 286.375); --wc-light-accent: oklch(0.985 0 0); --wc-light-border: oklch(0.92 0.004 286.32); --wc-dark-primary: oklch(0.21 0.006 285.885); --wc-dark-secondary: oklch(0.274 0.006 286.033); --wc-dark-accent: oklch(0.37 0.013 285.805); --wc-dark-border: oklch(0.37 0.013 285.805); } [x-cloak] { display: none !important; }</style>\';
+                    }
+                }
+            ?>';
+        });
+    }
+
+    /**
+     * Load standalone wirechat views and translations
+     */
+    protected function loadStandaloneWirechatViews(): void
+    {
+        // Load standalone wirechat views from filament-wirechat
+        $wirechatViewsPath = __DIR__.'/../resources/wirechat-views';
+        if (is_dir($wirechatViewsPath)) {
+            $this->loadViewsFrom($wirechatViewsPath, 'wirechat');
+        }
+
+        // Load standalone wirechat translations from filament-wirechat
+        $wirechatLangPath = __DIR__.'/../lang-standalone';
+        if (is_dir($wirechatLangPath)) {
+            $this->loadTranslationsFrom($wirechatLangPath, 'wirechat');
+        }
     }
 }

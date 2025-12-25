@@ -1,6 +1,6 @@
 <?php
 
-namespace AdultDate\FilamentWirechat\Livewire\Concerns;
+namespace Adultdate\Wirechat\Livewire\Concerns;
 
 use Livewire\Component;
 

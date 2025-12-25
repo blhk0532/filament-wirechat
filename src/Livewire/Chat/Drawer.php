@@ -1,6 +1,6 @@
 <?php
 
-namespace AdultDate\FilamentWirechat\Livewire\Chat;
+namespace Adultdate\Wirechat\Livewire\Chat;
 
 use Illuminate\Contracts\Routing\UrlRoutable;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -33,21 +33,6 @@ class Drawer extends Component
 
     public function openChatDrawer($component, $arguments = [], $modalAttributes = []): void
     {
-        // Handle case where component and arguments are passed as a single object
-        if (is_array($component) && isset($component['component'])) {
-            $modalAttributes = $component['modalAttributes'] ?? [];
-            $arguments = $component['arguments'] ?? [];
-            $component = $component['component'];
-        }
-        
-        // Handle case where Livewire.dispatch passes component as first arg and arguments as second
-        // If $component is a string and $arguments is empty, check if we need to swap
-        if (is_string($component) && empty($arguments) && func_num_args() >= 2) {
-            $secondArg = func_get_arg(1);
-            if (is_array($secondArg) && !isset($secondArg['component'])) {
-                $arguments = $secondArg;
-            }
-        }
 
         $componentClass = app(ComponentRegistry::class)->getClass($component);
         $id = md5($component.serialize($arguments));
@@ -139,6 +124,6 @@ class Drawer extends Component
 
     public function render()
     {
-        return view('filament-wirechat::livewire.chat.drawer');
+        return view('wirechat::livewire.chat.drawer');
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace AdultDate\FilamentWirechat\Livewire\Modals;
+namespace Adultdate\Wirechat\Livewire\Modals;
 
 use Illuminate\Contracts\Routing\UrlRoutable;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -31,6 +31,31 @@ class Modal extends Component
 
     public function openWirechatModal($component, $arguments = [], $modalAttributes = []): void
     {
+        // Handle Livewire 3 dispatch format where params might be bundled in first parameter
+        if (is_array($component)) {
+            if (isset($component['component'])) {
+                // New format: { component: '...', arguments: {...}, modalAttributes: {...} }
+                $modalAttributes = $component['modalAttributes'] ?? [];
+                $arguments = $component['arguments'] ?? [];
+                $component = $component['component'];
+            } elseif (isset($component[0])) {
+                // Array format: [component, arguments, modalAttributes]
+                $componentName = $component[0];
+                $arguments = $component[1] ?? [];
+                $modalAttributes = $component[2] ?? [];
+                $component = $componentName;
+            }
+        }
+
+        if (! is_string($component)) {
+            \Log::error('openWirechatModal received invalid component', [
+                'component' => $component,
+                'arguments' => $arguments,
+                'type' => gettype($component),
+            ]);
+            throw new \InvalidArgumentException('Component name must be a string, got: '.gettype($component));
+        }
+
         $componentClass = app(ComponentRegistry::class)->getClass($component);
         $id = md5($component.serialize($arguments));
 
@@ -106,6 +131,6 @@ class Modal extends Component
 
     public function render()
     {
-        return view('filament-wirechat::livewire.modals.modal');
+        return view('wirechat::livewire.modals.modal');
     }
 }

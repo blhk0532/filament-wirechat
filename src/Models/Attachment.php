@@ -2,12 +2,12 @@
 
 namespace AdultDate\FilamentWirechat\Models;
 
+use Adultdate\Wirechat\Facades\Wirechat;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Facades\Storage;
-use AdultDate\FilamentWirechat\Facades\Wirechat;
 
 /**
  * @property int $id
@@ -59,8 +59,7 @@ class Attachment extends Model
      */
     protected static function newFactory()
     {
-        // TODO: Create factory
-        return null;
+        return \AdultDate\FilamentWirechat\Database\Factories\AttachmentFactory::new();
     }
 
     protected static function boot(): void

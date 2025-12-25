@@ -2,14 +2,14 @@
 
 namespace AdultDate\FilamentWirechat\Models;
 
+use AdultDate\FilamentWirechat\Enums\GroupType;
+use AdultDate\FilamentWirechat\Enums\ParticipantRole;
+use Adultdate\Wirechat\Facades\Wirechat;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
-use AdultDate\FilamentWirechat\Enums\GroupType;
-use AdultDate\FilamentWirechat\Enums\ParticipantRole;
-use AdultDate\FilamentWirechat\Facades\Wirechat;
 
 /**
  * @property int $id
@@ -95,8 +95,7 @@ class Group extends Model
      */
     protected static function newFactory()
     {
-        // TODO: Create factory
-        return null;
+        return \AdultDate\FilamentWirechat\Database\Factories\GroupFactory::new();
     }
 
     public function conversation(): BelongsTo

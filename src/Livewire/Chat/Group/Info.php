@@ -1,19 +1,19 @@
 <?php
 
-namespace AdultDate\FilamentWirechat\Livewire\Chat\Group;
+namespace Adultdate\Wirechat\Livewire\Chat\Group;
 
+use AdultDate\FilamentWirechat\Enums\ParticipantRole;
+use AdultDate\FilamentWirechat\Models\Conversation;
+use Adultdate\Wirechat\Facades\Wirechat;
+use Adultdate\Wirechat\Jobs\DeleteConversationJob;
+use Adultdate\Wirechat\Livewire\Chat\Chat;
+use Adultdate\Wirechat\Livewire\Chats\Chats;
+use Adultdate\Wirechat\Livewire\Concerns\HasPanel;
+use Adultdate\Wirechat\Livewire\Concerns\ModalComponent;
+use Adultdate\Wirechat\Livewire\Concerns\Widget;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Locked;
 use Livewire\WithFileUploads;
-use AdultDate\FilamentWirechat\Enums\ParticipantRole;
-use AdultDate\FilamentWirechat\Facades\Wirechat;
-use AdultDate\FilamentWirechat\Jobs\DeleteConversationJob;
-use AdultDate\FilamentWirechat\Livewire\Chat\Chat;
-use AdultDate\FilamentWirechat\Livewire\Chats\Chats;
-use AdultDate\FilamentWirechat\Livewire\Concerns\HasPanel;
-use AdultDate\FilamentWirechat\Livewire\Concerns\ModalComponent;
-use AdultDate\FilamentWirechat\Livewire\Concerns\Widget;
-use AdultDate\FilamentWirechat\Models\Conversation;
 
 class Info extends ModalComponent
 {
@@ -60,12 +60,12 @@ class Info extends ModalComponent
     public function messages(): array
     {
         return [
-            'groupName.required' => __('filament-wirechat::validation.required', ['attribute' => __('filament-wirechat::chat.group.info.inputs.name.label')]),
-            'groupName.max' => __('filament-wirechat::validation.max.string', ['attribute' => __('filament-wirechat::chat.group.info.inputs.name.label')]),
-            'description.max' => __('filament-wirechat::validation.max.string', ['attribute' => __('filament-wirechat::chat.group.info.inputs.description.label')]),
-            'photo.max' => __('filament-wirechat::validation.max.file', ['attribute' => __('filament-wirechat::chat.group.info.inputs.photo.label')]),
-            'photo.image' => __('filament-wirechat::validation.image', ['attribute' => __('filament-wirechat::chat.group.info.inputs.photo.label')]),
-            'photo.mimes' => __('filament-wirechat::validation.mimes', ['attribute' => __('filament-wirechat::chat.group.info.inputs.photo.label')]),
+            'groupName.required' => __('wirechat::validation.required', ['attribute' => __('wirechat::chat.group.info.inputs.name.label')]),
+            'groupName.max' => __('wirechat::validation.max.string', ['attribute' => __('wirechat::chat.group.info.inputs.name.label')]),
+            'description.max' => __('wirechat::validation.max.string', ['attribute' => __('wirechat::chat.group.info.inputs.description.label')]),
+            'photo.max' => __('wirechat::validation.max.file', ['attribute' => __('wirechat::chat.group.info.inputs.photo.label')]),
+            'photo.image' => __('wirechat::validation.image', ['attribute' => __('wirechat::chat.group.info.inputs.photo.label')]),
+            'photo.mimes' => __('wirechat::validation.mimes', ['attribute' => __('wirechat::chat.group.info.inputs.photo.label')]),
         ];
     }
 
@@ -186,7 +186,7 @@ class Info extends ModalComponent
 
         // handle widget termination
         $this->handleComponentTermination(
-            redirectRoute: $this->chatsRoute(),
+            redirectRoute: $this->panel()->chatsRoute(),
             events: [
                 ['close-chat',  ['conversation' => $this->conversation->id]],
                 Chats::class => ['chat-deleted',  [$this->conversation->id]],
@@ -215,7 +215,7 @@ class Info extends ModalComponent
         $auth->exitConversation($this->conversation);
 
         $this->handleComponentTermination(
-            redirectRoute: $this->chatsRoute(),
+            redirectRoute: $this->panel()->chatsRoute(),
             events: [
                 'close-chat',
                 Chats::class => ['chat-exited',  [$this->conversation->id]],
@@ -228,7 +228,7 @@ class Info extends ModalComponent
         return <<<'HTML'
         <div>
             <!-- Loading spinner... -->
-            <x-filament-wirechat::loading-spin class="m-auto" />
+            <x-wirechat::loading-spin class="m-auto" />
         </div>
         HTML;
     }
@@ -239,7 +239,7 @@ class Info extends ModalComponent
         abort_if(empty($this->conversation), 404);
 
         abort_unless(auth()->check(), 401);
-        abort_unless($this->conversation->isGroup(), 403, __('filament-wirechat::chat.info.group.messages.invalid_conversation_type_error'));
+        abort_unless($this->conversation->isGroup(), 403, __('wirechat::chat.info.group.messages.invalid_conversation_type_error'));
         abort_unless(auth()->user()->belongsToConversation($this->conversation), 403);
 
         $this->conversation = $this->conversation->load('group.conversation', 'group.cover')->loadCount('participants');
@@ -258,7 +258,7 @@ class Info extends ModalComponent
         //  dd($this->isWidget(),$participant);
 
         // Pass data to the view
-        return view('filament-wirechat::livewire.chat.group.info', [
+        return view('wirechat::livewire.chat.group.info', [
             'receiver' => $this->conversation->getReceiver(),
             'participant' => $participant,
         ]);

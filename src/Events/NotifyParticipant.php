@@ -1,7 +1,12 @@
 <?php
 
-namespace AdultDate\FilamentWirechat\Events;
+namespace Adultdate\Wirechat\Events;
 
+use AdultDate\FilamentWirechat\Models\Message;
+use AdultDate\FilamentWirechat\Models\Participant;
+use Adultdate\Wirechat\Helpers\MorphClassResolver;
+use Adultdate\Wirechat\Http\Resources\MessageResource;
+use Adultdate\Wirechat\Traits\InteractsWithPanel;
 use Carbon\Carbon;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -9,21 +14,26 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use AdultDate\FilamentWirechat\Facades\Wirechat;
-use AdultDate\FilamentWirechat\Helpers\MorphClassResolver;
-use AdultDate\FilamentWirechat\Http\Resources\MessageResource;
-use AdultDate\FilamentWirechat\Models\Message;
-use AdultDate\FilamentWirechat\Models\Participant;
-use Filament\Facades\Filament;
 
 class NotifyParticipant implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
+    use InteractsWithPanel;
 
     public $participantType;
-    public $participantId;
-    public ?string $panelId = null;
 
+    public $participantId;
+
+    /**
+     * Note:
+     * - Messages no longer have a direct `conversation_id`. Conversation is
+     *   obtained via the participant (convenience accessor on Message).
+     * - `sendable` is kept only for backward-compatibility as an attribute
+     *   (not an Eloquent relation). We eagerly load the participant and its
+     *   participantable (the actual user) instead.
+     *
+     * @param  Participant|Model  $participant  Participant instance OR a model representing the target participantable
+     */
     public function __construct(public Participant|Model $participant, public Message $message, ?string $panel = null)
     {
         if ($participant instanceof Participant) {
@@ -34,11 +44,20 @@ class NotifyParticipant implements ShouldBroadcastNow
             $this->participantId = $participant->getKey();
         }
 
-        // Get current Filament panel ID
-        $currentPanel = Filament::getCurrentPanel();
-        $this->panelId = $panel ?? ($currentPanel ? $currentPanel->getId() : 'default');
-        
-        $message->load('conversation.group', 'sendable', 'attachment');
+        $this->resolvePanel($panel);
+
+        // Eager-load the participant and its participantable (the sender),
+        // and the participant's conversation with group, plus any attachment.
+        // We use loadMissing so we don't override already-loaded relationships.
+        $this->message->loadMissing([
+            'participant.participantable',
+            'participant.conversation.group',
+            'attachment',
+        ]);
+
+        // For backwards-compatibility, you can still access $message->sendable()
+        // (which returns the user attribute). Note: 'sendable' is not a relation
+        // and therefore is not passed to loadMissing.
     }
 
     /**
@@ -46,7 +65,12 @@ class NotifyParticipant implements ShouldBroadcastNow
      */
     public function broadcastQueue(): string
     {
-        return Wirechat::messagesQueue();
+        // Prefer conversation via accessor; fallback to participant->conversation.
+        $conversation = $this->message->conversation ?? $this->message->participant?->conversation;
+
+        $isPrivate = $conversation?->isPrivate() ?? false;
+
+        return $isPrivate ? $this->getPanel()->getMessagesQueue() : $this->getPanel()->getEventsQueue();
     }
 
     public function broadcastWhen(): bool
@@ -62,22 +86,20 @@ class NotifyParticipant implements ShouldBroadcastNow
         $encodedType = MorphClassResolver::encode($this->participantType);
         $channels = [];
 
-        $panelId = $this->panelId;
-        $channels[] = "{$panelId}.participant.{$encodedType}.{$this->participantId}";
+        $panelId = $this->getPanel()->getId();
+        $channels[] = "$panelId.participant.$encodedType.$this->participantId";
 
-        return array_map(function ($channelName) {
-            return new PrivateChannel($channelName);
-        }, $channels);
+        return array_map(fn ($channelName) => new PrivateChannel($channelName), $channels);
     }
 
     public function broadcastWith(): array
     {
-        $currentPanel = Filament::getCurrentPanel();
-        $chatUrl = $currentPanel ? $currentPanel->getUrl() . '/chats/' . $this->message->conversation_id : '#';
+        // Use conversation accessor (via participant) to build the redirect URL.
+        $conversationId = optional($this->message->conversation)->id ?? $this->message->participant?->conversation?->id;
 
         return [
             'message' => new MessageResource($this->message),
-            'redirect_url' => $chatUrl,
+            'redirect_url' => $this->getPanel()->chatRoute($conversationId),
         ];
     }
 }
